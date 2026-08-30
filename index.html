@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101318" />
+  <title>Hockey Fit</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <div class="eyebrow">HOCKEY FIT</div>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <button class="icon-btn" id="refreshBtn" title="Aktualisieren">↻</button>
+    </header>
+
+    <main>
+      <section id="setupView" class="view hidden">
+        <div class="card setup-card">
+          <h2>Einmalig verbinden</h2>
+          <p>Trage die URL deiner Google-Apps-Script-Web-App und den privaten Token ein. Beides wird nur lokal in diesem Browser gespeichert.</p>
+          <label>Apps Script Web-App URL
+            <input id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" />
+          </label>
+          <label>Privater Token
+            <input id="apiToken" type="password" placeholder="Token aus dem Apps-Script Setup" autocomplete="off" />
+          </label>
+          <button class="primary" id="saveSetupBtn">Verbindung testen & speichern</button>
+          <div id="setupStatus" class="status"></div>
+        </div>
+      </section>
+
+      <section id="dashboardView" class="view">
+        <div class="hero card">
+          <div>
+            <span class="muted">Aktuell</span>
+            <div class="big-number"><span id="currentWeight">—</span><small> kg</small></div>
+          </div>
+          <div class="target">
+            <span class="muted">Ziel</span>
+            <strong><span id="goalWeight">83.0</span> kg</strong>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card stat"><span>7-Tage-Schnitt</span><strong id="avg7">—</strong><small>kg</small></div>
+          <div class="card stat"><span>7-Tage-Trend</span><strong id="trend7">—</strong><small>kg/Woche</small></div>
+          <div class="card stat"><span>Bis Ziel</span><strong id="toGoal">—</strong><small>kg</small></div>
+          <div class="card stat"><span>Bauch</span><strong id="currentWaist">—</strong><small>cm</small></div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="card-head"><h2>Gewicht</h2><span class="muted">letzte 30 Einträge</span></div>
+          <svg id="weightChart" viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="Gewichtsverlauf"></svg>
+        </div>
+
+        <div class="card plan-card">
+          <div class="card-head"><h2>Deine Woche</h2><span class="muted">Startplan</span></div>
+          <div class="plan-row"><b>Mo</b><span>Kraft A · 45–55 min</span></div>
+          <div class="plan-row"><b>Di</b><span>Zone 2 · 45–60 min</span></div>
+          <div class="plan-row"><b>Mi</b><span>Kraft B · 45–55 min</span></div>
+          <div class="plan-row rest"><b>Do</b><span>Ruhetag / Spaziergang</span></div>
+          <div class="plan-row"><b>Fr</b><span>Unihockey · 2 h</span></div>
+          <div class="plan-row rest"><b>Sa</b><span>Ruhetag / locker bewegen</span></div>
+          <div class="plan-row"><b>So</b><span>HIIT · 1 h</span></div>
+        </div>
+      </section>
+
+      <section id="weightView" class="view hidden">
+        <div class="card form-card">
+          <h2>Gewicht eintragen</h2>
+          <label>Datum<input id="weightDate" type="date" /></label>
+          <label>Gewicht (kg)<input id="weightKg" type="number" inputmode="decimal" step="0.1" min="40" max="250" placeholder="94.0" /></label>
+          <button class="primary" id="saveWeightBtn">Speichern</button>
+          <div id="weightStatus" class="status"></div>
+        </div>
+        <div class="card list-card"><h2>Letzte Einträge</h2><div id="weightList"></div></div>
+      </section>
+
+      <section id="trainingView" class="view hidden">
+        <div class="card form-card">
+          <h2>Training eintragen</h2>
+          <label>Datum<input id="trainingDate" type="date" /></label>
+          <label>Training
+            <select id="trainingType">
+              <option>Kraft A</option><option>Kraft B</option><option>Zone 2</option><option>Unihockey</option><option>HIIT</option><option>Eishockey</option><option>Ergometer</option><option>Crosstrainer</option><option>Rudern</option><option>E-Bike</option><option>Sonstiges</option>
+            </select>
+          </label>
+          <div class="two-col">
+            <label>Dauer (min)<input id="durationMin" type="number" min="1" max="600" placeholder="50" /></label>
+            <label>RPE 1–10<input id="rpe" type="number" min="1" max="10" placeholder="6" /></label>
+          </div>
+          <div class="two-col">
+            <label>Ø Puls<input id="avgHr" type="number" min="40" max="230" placeholder="135" /></label>
+            <label>Max Puls<input id="maxHr" type="number" min="40" max="240" placeholder="175" /></label>
+          </div>
+          <label>Notiz<textarea id="trainingNotes" rows="3" placeholder="Wie hat es sich angefühlt?"></textarea></label>
+          <button class="primary" id="saveTrainingBtn">Speichern</button>
+          <div id="trainingStatus" class="status"></div>
+        </div>
+        <div class="card list-card"><h2>Letzte Trainings</h2><div id="trainingList"></div></div>
+      </section>
+
+      <section id="bodyView" class="view hidden">
+        <div class="card form-card">
+          <h2>Bauchumfang</h2>
+          <p class="muted">1× pro Woche morgens auf Nabelhöhe messen.</p>
+          <label>Datum<input id="waistDate" type="date" /></label>
+          <label>Umfang (cm)<input id="waistCm" type="number" inputmode="decimal" step="0.1" min="50" max="200" placeholder="105.0" /></label>
+          <button class="primary" id="saveWaistBtn">Speichern</button>
+          <div id="waistStatus" class="status"></div>
+        </div>
+        <div class="card list-card"><h2>Verlauf</h2><div id="waistList"></div></div>
+      </section>
+
+      <section id="settingsView" class="view hidden">
+        <div class="card form-card">
+          <h2>Einstellungen</h2>
+          <label>Zielgewicht (kg)<input id="goalInput" type="number" step="0.1" min="50" max="200" /></label>
+          <button class="primary" id="saveGoalBtn">Ziel speichern</button>
+          <hr />
+          <button class="secondary" id="changeConnectionBtn">Google-Sheet-Verbindung ändern</button>
+          <p class="fineprint">API-URL und Token liegen nur in localStorage dieses Browsers, nicht im GitHub-Repository.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav>
+      <button data-view="dashboardView" class="active"><span>⌂</span>Heute</button>
+      <button data-view="weightView"><span>⚖</span>Gewicht</button>
+      <button data-view="trainingView"><span>◉</span>Training</button>
+      <button data-view="bodyView"><span>↔</span>Bauch</button>
+      <button data-view="settingsView"><span>⚙</span>Setup</button>
+    </nav>
+  </div>
+  <iframe name="writeSink" id="writeSink" class="hidden-frame"></iframe>
+  <script src="app.js"></script>
+</body>
+</html>
