@@ -11,7 +11,7 @@
   <div class="shell">
     <header>
       <div>
-        <div class="eyebrow">HOCKEY FIT</div>
+        <div class="eyebrow">HOCKEY FIT <span class="version">v0.1</span></div>
         <h1 id="pageTitle">Dashboard</h1>
       </div>
       <button class="icon-btn" id="refreshBtn" title="Aktualisieren">↻</button>
@@ -81,14 +81,49 @@
       </section>
 
       <section id="trainingView" class="view hidden">
-        <div class="card form-card">
-          <h2>Training eintragen</h2>
+        <!-- Schritt 1: nur Datum + Trainingsart -->
+        <div id="trainingStartCard" class="card form-card">
+          <div class="step-label">SCHRITT 1</div>
+          <h2>Training starten</h2>
           <label>Datum<input id="trainingDate" type="date" /></label>
           <label>Training
             <select id="trainingType">
               <option>Kraft A</option><option>Kraft B</option><option>Zone 2</option><option>Unihockey</option><option>HIIT</option><option>Eishockey</option><option>Ergometer</option><option>Crosstrainer</option><option>Rudern</option><option>E-Bike</option><option>Sonstiges</option>
             </select>
           </label>
+          <button class="primary" id="startTrainingBtn">Weiter →</button>
+        </div>
+
+        <!-- Kraft-Wizard: genau eine Übung pro Screen -->
+        <div id="exerciseWizardCard" class="card form-card hidden">
+          <div class="wizard-head">
+            <div>
+              <div id="exerciseStepLabel" class="step-label">ÜBUNG 1 / 5</div>
+              <h2 id="exerciseName">Übung</h2>
+            </div>
+            <button class="text-btn" id="cancelWizardBtn">Abbrechen</button>
+          </div>
+          <div id="exerciseInstruction" class="exercise-help"></div>
+          <div class="two-col">
+            <label>Sätze<input id="exerciseSets" type="number" min="1" max="10" inputmode="numeric" /></label>
+            <label>Wdh. pro Satz<input id="exerciseReps" type="number" min="1" max="50" inputmode="numeric" /></label>
+          </div>
+          <div class="two-col">
+            <label>Min. Gewicht (kg)<input id="exerciseWeightMin" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 20" /></label>
+            <label>Max. Gewicht (kg)<input id="exerciseWeightMax" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 25" /></label>
+          </div>
+          <label>Notiz zur Übung<input id="exerciseNotes" type="text" placeholder="optional, z. B. noch leicht" /></label>
+          <div class="wizard-actions">
+            <button class="secondary" id="exerciseBackBtn">← Zurück</button>
+            <button class="primary compact" id="exerciseNextBtn">Nächste Übung →</button>
+          </div>
+        </div>
+
+        <!-- Abschluss für Kraft und normale Trainings -->
+        <div id="trainingFinishCard" class="card form-card hidden">
+          <div class="step-label" id="finishStepLabel">ABSCHLUSS</div>
+          <h2 id="finishTitle">Training abschliessen</h2>
+          <div id="exerciseSummary" class="exercise-summary hidden"></div>
           <div class="two-col">
             <label>Dauer (min)<input id="durationMin" type="number" min="1" max="600" placeholder="50" /></label>
             <label>RPE 1–10<input id="rpe" type="number" min="1" max="10" placeholder="6" /></label>
@@ -98,9 +133,13 @@
             <label>Max Puls<input id="maxHr" type="number" min="40" max="240" placeholder="175" /></label>
           </div>
           <label>Notiz<textarea id="trainingNotes" rows="3" placeholder="Wie hat es sich angefühlt?"></textarea></label>
-          <button class="primary" id="saveTrainingBtn">Speichern</button>
+          <div class="wizard-actions">
+            <button class="secondary" id="finishBackBtn">← Zurück</button>
+            <button class="primary compact" id="saveTrainingBtn">Training speichern</button>
+          </div>
           <div id="trainingStatus" class="status"></div>
         </div>
+
         <div class="card list-card"><h2>Letzte Trainings</h2><div id="trainingList"></div></div>
       </section>
 
