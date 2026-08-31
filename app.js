@@ -8,18 +8,28 @@ const today = () => new Date().toISOString().slice(0,10);
 
 const workoutPlans = {
   'Kraft A': [
+    { kind:'warmup', name:'Warm-up', minutes:10, help:'10 Minuten auf Ergometer oder Stepper. Locker beginnen und gegen Ende leicht steigern. Du sollst warm werden, aber noch problemlos sprechen können.' },
+    { name:'Goblet Squat', sets:3, reps:10, help:'Eine Kurzhantel vor der Brust halten. Füsse etwa schulterbreit. Hüfte nach unten/hinten, Knie folgen den Fussspitzen. Fersen bleiben am Boden.' },
     { name:'Bankdrücken Multipower', sets:3, reps:10, help:'Bank flach stellen. Stange ungefähr über der Brust. Schulterblätter leicht nach hinten/unten, Füsse fest auf den Boden. Stange kontrolliert zur Brust senken und hochdrücken.' },
     { name:'Latziehen Kabelzug', sets:3, reps:10, help:'Breite Stange am oberen Kabel. Brust leicht raus, Ellbogen nach unten ziehen. Stange zur oberen Brust, nicht hinter den Kopf. Langsam zurück.' },
-    { name:'Goblet Squat', sets:3, reps:10, help:'Eine Kurzhantel vor der Brust halten. Füsse etwa schulterbreit. Hüfte nach unten/hinten, Knie folgen den Fussspitzen. Fersen bleiben am Boden.' },
+    { name:'Schulterdrücken Kurzhanteln', sets:3, reps:10, help:'Bank auf ca. 70–80°. Hanteln auf Schulterhöhe starten. Nach oben drücken, ohne stark ins Hohlkreuz zu gehen. Kontrolliert absenken.' },
     { name:'Rudern Kabelzug', sets:3, reps:10, help:'Griff auf Bauch-/Brusthöhe. Stabil sitzen oder stehen. Griff zum Bauch ziehen, Schulterblätter hinten zusammen. Oberkörper bleibt ruhig.' },
-    { name:'Schulterdrücken Kurzhanteln', sets:3, reps:10, help:'Bank auf ca. 70–80°. Hanteln auf Schulterhöhe starten. Nach oben drücken, ohne stark ins Hohlkreuz zu gehen. Kontrolliert absenken.' }
+    { name:'Seitheben Kurzhanteln', sets:3, reps:10, help:'Leichte Hanteln seitlich am Körper. Arme mit leicht gebeugten Ellbogen seitlich bis ungefähr Schulterhöhe anheben. Nicht mit Schwung arbeiten und Schultern nicht hochziehen.' },
+    { name:'Bauch auf dem Bock', sets:3, reps:10, help:'Stabil auf dem Bauch-/Rückenbock positionieren. Bauch anspannen und den Oberkörper kontrolliert einrollen bzw. anheben. Nicht am Kopf ziehen und ohne Schwung arbeiten.' },
+    { name:'Plank', sets:3, reps:1, help:'Unterarme aufstützen, Körper von Kopf bis Ferse möglichst gerade. Bauch und Gesäss anspannen. 30–60 Sekunden halten; abbrechen, sobald die Hüfte deutlich absinkt.' },
+    { kind:'cooldown', name:'Cool-down & Dehnen', minutes:5, help:'Je ca. 30 Sek. pro Seite, angenehm ziehen – nicht schmerzen: 1) Hüftbeuger: ein Knie unten, Becken leicht vor. 2) Hintere Oberschenkel: Bein vor, Hüfte zurück, Rücken gerade. 3) Gesäss: im Sitzen Knöchel aufs andere Knie, leicht vorbeugen. 4) Brust/Schulter: Unterarm an Türrahmen, Körper wegdrehen. 5) Lat/Rücken: Hände an Bank/Turm, Hüfte zurück, Brust Richtung Boden.' }
   ],
   'Kraft B': [
-    { name:'Rumänisches Kreuzheben Kurzhanteln', sets:3, reps:10, help:'Hanteln vor den Oberschenkeln. Knie leicht gebeugt. Hüfte nach hinten schieben, Rücken neutral, Hanteln nah an den Beinen. Nur so tief, wie der Rücken stabil bleibt.' },
+    { kind:'warmup', name:'Warm-up', minutes:10, help:'10 Minuten auf Ergometer oder Stepper. Locker beginnen und gegen Ende leicht steigern. Du sollst warm werden, aber noch problemlos sprechen können.' },
+    { name:'Ausfallschritte mit Kurzhanteln', sets:3, reps:8, help:'Je 8 Reps pro Bein. Einen kontrollierten Schritt nach vorne oder in Split-Squat-Position. Oberkörper aufrecht, vorderes Knie folgt der Fussspitze. Erst leicht starten.' },
     { name:'Brustdrücken Kurzhanteln', sets:3, reps:10, help:'Flach auf die Bank. Hanteln seitlich über der Brust. Schulterblätter leicht nach hinten/unten. Hochdrücken und kontrolliert wieder absenken.' },
     { name:'Latziehen enger Griff', sets:3, reps:10, help:'Engen oder neutralen Griff oben am Kabelzug. Brust aufrecht. Ellbogen Richtung Hüfte ziehen und langsam wieder strecken.' },
-    { name:'Ausfallschritte / Split Squat', sets:3, reps:8, help:'Ein Bein vor, eines zurück. Oberkörper aufrecht. Hinteres Knie kontrolliert Richtung Boden. Erst ohne Gewicht starten; Wiederholungen gelten pro Seite.' },
-    { name:'Face Pull Kabelzug', sets:2, reps:15, help:'Seil ungefähr auf Gesichtshöhe. Zum Gesicht ziehen, Ellbogen nach aussen, Schulterblätter zusammen. Leichtes Gewicht und saubere Bewegung.' }
+    { name:'Face Pull Kabelzug', sets:3, reps:12, help:'Seil ungefähr auf Gesichtshöhe. Zum Gesicht ziehen, Ellbogen nach aussen, Schulterblätter zusammen. Leichtes Gewicht und saubere Bewegung.' },
+    { name:'Rumänisches Kreuzheben Kurzhanteln', sets:3, reps:10, help:'Hanteln vor den Oberschenkeln. Knie leicht gebeugt. Hüfte nach hinten schieben, Rücken neutral, Hanteln nah an den Beinen. Nur so tief, wie der Rücken stabil bleibt.' },
+    { name:'Einarmiges Kabelrudern', sets:3, reps:10, help:'Je 10 Reps pro Seite. Kabel ungefähr auf Bauchhöhe. Schulter bleibt tief, Ellbogen kontrolliert nach hinten ziehen. Oberkörper möglichst ruhig halten.' },
+    { name:'Rückenstrecker auf dem Bock', sets:3, reps:10, help:'Hüfte am Polster abstützen. Rücken neutral halten. Oberkörper kontrolliert absenken und bis zur geraden Körperlinie anheben – nicht ins Hohlkreuz überstrecken.' },
+    { name:'Bauch auf dem Bock', sets:3, reps:10, help:'Stabil auf dem Bauch-/Rückenbock positionieren. Bauch anspannen und den Oberkörper kontrolliert einrollen bzw. anheben. Nicht am Kopf ziehen und ohne Schwung arbeiten.' },
+    { kind:'cooldown', name:'Cool-down & Dehnen', minutes:5, help:'Je ca. 30 Sek. pro Seite, angenehm ziehen – nicht schmerzen: 1) Hüftbeuger: ein Knie unten, Becken leicht vor. 2) Hintere Oberschenkel: Bein vor, Hüfte zurück, Rücken gerade. 3) Gesäss: im Sitzen Knöchel aufs andere Knie, leicht vorbeugen. 4) Brust/Schulter: Unterarm an Türrahmen, Körper wegdrehen. 5) Lat/Rücken: Hände an Bank/Turm, Hüfte zurück, Brust Richtung Boden.' }
   ]
 };
 
@@ -122,7 +132,7 @@ function resetTrainingWizard(){
   hideTrainingCards();
   $('trainingStartCard').classList.remove('hidden');
   $('trainingDate').value=today();
-  $('durationMin').value=''; $('rpe').value=''; $('avgHr').value=''; $('maxHr').value=''; $('trainingNotes').value='';
+  $('durationMin').value=''; $('rpe').value='7'; $('avgHr').value=''; $('maxHr').value=''; $('trainingNotes').value='';
   setStatus('trainingStatus','');
 }
 
@@ -147,6 +157,7 @@ function startTrainingWizard(){
 function saveCurrentExerciseFields(){
   if(!state.workout || !isStrength(state.workout.type)) return;
   const e=state.workout.exercises[state.workout.exerciseIndex];
+  if(e.kind) return;
   e.sets=Number($('exerciseSets').value)||e.sets;
   e.reps=Number($('exerciseReps').value)||e.reps;
   e.weight_min_kg=$('exerciseWeightMin').value;
@@ -156,14 +167,18 @@ function saveCurrentExerciseFields(){
 
 function renderExerciseStep(){
   const w=state.workout; const e=w.exercises[w.exerciseIndex]; const total=w.exercises.length;
-  $('exerciseStepLabel').textContent=`ÜBUNG ${w.exerciseIndex+1} / ${total}`;
+  const strengthNo=w.exercises.slice(0,w.exerciseIndex+1).filter(x=>!x.kind).length;
+  $('exerciseStepLabel').textContent=e.kind==='warmup'?'WARM-UP · 10 MIN':e.kind==='cooldown'?'COOL-DOWN · 5 MIN':`ÜBUNG ${strengthNo} / 8`;
   $('exerciseName').textContent=e.name;
   $('exerciseInstruction').textContent=e.help;
-  $('exerciseSets').value=e.sets;
-  $('exerciseReps').value=e.reps;
-  $('exerciseWeightMin').value=e.weight_min_kg;
-  $('exerciseWeightMax').value=e.weight_max_kg;
-  $('exerciseNotes').value=e.notes||'';
+  $('exerciseFields').classList.toggle('hidden',!!e.kind);
+  if(!e.kind){
+    $('exerciseSets').value=e.sets;
+    $('exerciseReps').value=e.reps;
+    $('exerciseWeightMin').value=e.weight_min_kg;
+    $('exerciseWeightMax').value=e.weight_max_kg;
+    $('exerciseNotes').value=e.notes||'';
+  }
   $('exerciseBackBtn').disabled=w.exerciseIndex===0;
   $('exerciseNextBtn').textContent=w.exerciseIndex===total-1?'Zum Abschluss →':'Nächste Übung →';
 }
@@ -177,7 +192,7 @@ function nextExercise(){
   $('finishTitle').textContent=w.type+' abschliessen';
   $('finishStepLabel').textContent='LETZTER SCHRITT';
   $('exerciseSummary').classList.remove('hidden');
-  $('exerciseSummary').innerHTML='<strong>Übungen erfasst</strong>'+w.exercises.map(e=>`<div><span>${esc(e.name)}</span><b>${esc(e.sets)}×${esc(e.reps)} · ${e.weight_min_kg||'—'}–${e.weight_max_kg||'—'} kg</b></div>`).join('');
+  $('exerciseSummary').innerHTML='<strong>Übungen erfasst</strong>'+w.exercises.filter(e=>!e.kind).map(e=>`<div><span>${esc(e.name)}</span><b>${esc(e.sets)}×${esc(e.reps)} · ${e.weight_min_kg||'—'}–${e.weight_max_kg||'—'} kg</b></div>`).join('');
   $('finishBackBtn').textContent='← Letzte Übung';
 }
 
@@ -205,7 +220,7 @@ async function saveWorkout(){
     setStatus('trainingStatus','Speichere Training …');
     post('addTraining',trainingPayload);
     if(isStrength(w.type)){
-      w.exercises.forEach((e,idx)=>post('addExercise',{
+      w.exercises.filter(e=>!e.kind).forEach((e,idx)=>post('addExercise',{
         date:w.date, training_type:w.type, exercise_order:idx+1, exercise:e.name,
         sets:e.sets, reps:e.reps, weight_min_kg:e.weight_min_kg||'', weight_max_kg:e.weight_max_kg||'', notes:e.notes||''
       }));

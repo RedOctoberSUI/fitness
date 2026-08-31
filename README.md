@@ -90,3 +90,9 @@ Die Apps-Script-Web-App ist technisch öffentlich erreichbar, akzeptiert aber oh
 - Schritte pro Tag
 - Trainings-/Gewichtstrends über 4/12 Wochen
 - Datenexport
+
+## Version 0.2
+- Kraft A und B: jeweils 10 Min Warm-up + 8 Übungen + 5 Min Cool-down/Dehnen.
+- Warm-up und Cool-down laufen als eigene Schritte mit Anleitung im Training-Wizard.
+- RPE ist ein Dropdown (1–10), Standardwert 7.
+- "Reps" wird als kurze Bezeichnung beibehalten.

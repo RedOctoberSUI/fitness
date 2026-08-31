@@ -59,9 +59,9 @@
 
         <div class="card plan-card">
           <div class="card-head"><h2>Deine Woche</h2><span class="muted">Startplan</span></div>
-          <div class="plan-row"><b>Mo</b><span>Kraft A · 45–55 min</span></div>
+          <div class="plan-row"><b>Mo</b><span>Kraft A · 55–65 min</span></div>
           <div class="plan-row"><b>Di</b><span>Zone 2 · 45–60 min</span></div>
-          <div class="plan-row"><b>Mi</b><span>Kraft B · 45–55 min</span></div>
+          <div class="plan-row"><b>Mi</b><span>Kraft B · 55–65 min</span></div>
           <div class="plan-row rest"><b>Do</b><span>Ruhetag / Spaziergang</span></div>
           <div class="plan-row"><b>Fr</b><span>Unihockey · 2 h</span></div>
           <div class="plan-row rest"><b>Sa</b><span>Ruhetag / locker bewegen</span></div>
@@ -104,15 +104,17 @@
             <button class="text-btn" id="cancelWizardBtn">Abbrechen</button>
           </div>
           <div id="exerciseInstruction" class="exercise-help"></div>
-          <div class="two-col">
-            <label>Sätze<input id="exerciseSets" type="number" min="1" max="10" inputmode="numeric" /></label>
-            <label>Wdh. pro Satz<input id="exerciseReps" type="number" min="1" max="50" inputmode="numeric" /></label>
+          <div id="exerciseFields">
+            <div class="two-col">
+              <label>Sätze<input id="exerciseSets" type="number" min="1" max="10" inputmode="numeric" /></label>
+              <label>Reps pro Satz<input id="exerciseReps" type="number" min="1" max="50" inputmode="numeric" /></label>
+            </div>
+            <div class="two-col">
+              <label>Min. Gewicht (kg)<input id="exerciseWeightMin" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 20" /></label>
+              <label>Max. Gewicht (kg)<input id="exerciseWeightMax" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 25" /></label>
+            </div>
+            <label>Notiz zur Übung<input id="exerciseNotes" type="text" placeholder="optional, z. B. noch leicht" /></label>
           </div>
-          <div class="two-col">
-            <label>Min. Gewicht (kg)<input id="exerciseWeightMin" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 20" /></label>
-            <label>Max. Gewicht (kg)<input id="exerciseWeightMax" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 25" /></label>
-          </div>
-          <label>Notiz zur Übung<input id="exerciseNotes" type="text" placeholder="optional, z. B. noch leicht" /></label>
           <div class="wizard-actions">
             <button class="secondary" id="exerciseBackBtn">← Zurück</button>
             <button class="primary compact" id="exerciseNextBtn">Nächste Übung →</button>
@@ -126,7 +128,17 @@
           <div id="exerciseSummary" class="exercise-summary hidden"></div>
           <div class="two-col">
             <label>Dauer (min)<input id="durationMin" type="number" min="1" max="600" placeholder="50" /></label>
-            <label>RPE 1–10<input id="rpe" type="number" min="1" max="10" placeholder="6" /></label>
+            <label>RPE – wie hart war das Training?
+              <select id="rpe">
+                <option value="">Bitte wählen</option>
+                <option value="1">1 – Sehr leicht</option><option value="2">2 – Sehr leicht</option>
+                <option value="3">3 – Locker</option><option value="4">4 – Locker</option>
+                <option value="5">5 – Moderat</option><option value="6">6 – Anstrengend</option>
+                <option value="7" selected>7 – Ordentlich anstrengend</option>
+                <option value="8">8 – Hart</option><option value="9">9 – Sehr hart</option>
+                <option value="10">10 – Maximum</option>
+              </select>
+            </label>
           </div>
           <div class="two-col">
             <label>Ø Puls<input id="avgHr" type="number" min="40" max="230" placeholder="135" /></label>
