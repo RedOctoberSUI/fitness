@@ -90,3 +90,18 @@ Die Apps-Script-Web-App ist technisch öffentlich erreichbar, akzeptiert aber oh
 - Schritte pro Tag
 - Trainings-/Gewichtstrends über 4/12 Wochen
 - Datenexport
+
+## Version 0.3
+- Kraft A und B: jeweils 10 Min Warm-up + 8 Übungen + 5 Min Cool-down/Dehnen.
+- Warm-up und Cool-down laufen als eigene Schritte mit Anleitung im Training-Wizard.
+- RPE ist ein Dropdown (1–10), Standardwert 7.
+- "Reps" wird als kurze Bezeichnung beibehalten.
+
+
+## Neu in v0.3
+- Zone 2: Gerät-Dropdown (Rudern, Velo, Stepper)
+- Zone 2: freies Zahlenfeld für Stufe / Resistance
+- Zone 2: angezeigte kcal beim Abschluss
+- Training-Sheet erhält die Felder `device`, `level`, `calories`
+- `setup()` ergänzt fehlende Spalten in bestehenden Sheets, ohne vorhandene Daten zu löschen
+- sichtbare Versionsnummer im Frontend und Backend auf v0.3

@@ -1,5 +1,6 @@
 /**
  * Hockey Fit Tracker – Google Sheets Backend
+ * Version: 0.3
  */
 
 function setup() {
@@ -9,14 +10,26 @@ function setup() {
   const schemas = {
     Weight: ['timestamp','date','weight_kg'],
     Measurements: ['timestamp','date','waist_cm'],
-    Training: ['timestamp','date','type','duration_min','avg_hr','max_hr','rpe','notes'],
+    Training: ['timestamp','date','type','duration_min','avg_hr','max_hr','rpe','device','level','calories','notes'],
     Exercises: ['timestamp','date','training_type','exercise_order','exercise','sets','reps','weight_min_kg','weight_max_kg','notes']
   };
 
   Object.keys(schemas).forEach(name => {
     let sheet = ss.getSheetByName(name);
     if (!sheet) sheet = ss.insertSheet(name);
-    if (sheet.getLastRow() === 0) sheet.appendRow(schemas[name]);
+    const wanted = schemas[name];
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(wanted);
+    } else {
+      const lastCol = Math.max(1, sheet.getLastColumn());
+      const current = sheet.getRange(1,1,1,lastCol).getValues()[0].map(String);
+      wanted.forEach(header => {
+        if (!current.includes(header)) {
+          sheet.getRange(1, current.length + 1).setValue(header);
+          current.push(header);
+        }
+      });
+    }
     sheet.setFrozenRows(1);
   });
 
@@ -87,10 +100,19 @@ function addMeasurement_(p) {
 
 function addTraining_(p) {
   if (!p.date || !p.type || !isFinite(Number(p.duration_min))) throw new Error('Ungültige Trainingsdaten');
-  ss_().getSheetByName('Training').appendRow([
-    new Date(),safeDate_(p.date),String(p.type),Number(p.duration_min),
-    numOrBlank_(p.avg_hr),numOrBlank_(p.max_hr),numOrBlank_(p.rpe),String(p.notes || '')
-  ]);
+  appendByHeader_('Training', {
+    timestamp: new Date(),
+    date: safeDate_(p.date),
+    type: String(p.type),
+    duration_min: Number(p.duration_min),
+    avg_hr: numOrBlank_(p.avg_hr),
+    max_hr: numOrBlank_(p.max_hr),
+    rpe: numOrBlank_(p.rpe),
+    device: String(p.device || ''),
+    level: numOrBlank_(p.level),
+    calories: numOrBlank_(p.calories),
+    notes: String(p.notes || '')
+  });
 }
 
 function addExercise_(p) {
@@ -99,6 +121,14 @@ function addExercise_(p) {
     new Date(),safeDate_(p.date),String(p.training_type),numOrBlank_(p.exercise_order),String(p.exercise),
     numOrBlank_(p.sets),numOrBlank_(p.reps),numOrBlank_(p.weight_min_kg),numOrBlank_(p.weight_max_kg),String(p.notes || '')
   ]);
+}
+
+
+function appendByHeader_(sheetName, values) {
+  const sheet = ss_().getSheetByName(sheetName);
+  if (!sheet) throw new Error('Tabelle fehlt: ' + sheetName);
+  const headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0].map(String);
+  sheet.appendRow(headers.map(h => Object.prototype.hasOwnProperty.call(values,h) ? values[h] : ''));
 }
 
 function readAll_() {
