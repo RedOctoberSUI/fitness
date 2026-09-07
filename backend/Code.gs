@@ -1,6 +1,6 @@
 /**
- * Hockey Fit Tracker – Google Sheets Backend
- * Version: 0.5
+ * Larry Fit Tracker – Google Sheets Backend
+ * Version: 0.6
  */
 
 function setup() {
@@ -11,7 +11,7 @@ function setup() {
     Weight: ['timestamp','date','weight_kg'],
     Measurements: ['timestamp','date','waist_cm'],
     Training: ['timestamp','date','type','duration_min','avg_hr','max_hr','rpe','device','level','calories','warmup_minutes','warmup_level','warmup_calories','notes'],
-    Exercises: ['timestamp','date','training_type','exercise_order','exercise','sets','reps','duration_sec','weight_min_kg','weight_max_kg','notes']
+    Exercises: ['timestamp','date','training_type','exercise_order','exercise','sets','reps','duration_sec','weight_min_kg','weight_max_kg','sets_json','notes']
   };
 
   Object.keys(schemas).forEach(name => {
@@ -42,7 +42,7 @@ function setup() {
   }
 
   console.log('---------------------------------------');
-  console.log('HOCKEY FIT TRACKER EINGERICHTET');
+  console.log('LARRY FIT TRACKER EINGERICHTET');
   console.log('API_TOKEN: ' + token);
   console.log('---------------------------------------');
 }
@@ -125,7 +125,7 @@ function addExercise_(p) {
     timestamp: new Date(), date: safeDate_(p.date), training_type: String(p.training_type),
     exercise_order: numOrBlank_(p.exercise_order), exercise: String(p.exercise), sets: numOrBlank_(p.sets),
     reps: numOrBlank_(p.reps), duration_sec: numOrBlank_(p.duration_sec), weight_min_kg: numOrBlank_(p.weight_min_kg),
-    weight_max_kg: numOrBlank_(p.weight_max_kg), notes: String(p.notes || '')
+    weight_max_kg: numOrBlank_(p.weight_max_kg), sets_json: String(p.sets_json || ''), notes: String(p.notes || '')
   });
 }
 
@@ -152,7 +152,7 @@ function addExercisesBatch_(rows) {
       timestamp: new Date(), date: safeDate_(p.date), training_type: String(p.training_type),
       exercise_order: numOrBlank_(p.exercise_order), exercise: String(p.exercise), sets: numOrBlank_(p.sets),
       reps: numOrBlank_(p.reps), duration_sec: numOrBlank_(p.duration_sec), weight_min_kg: numOrBlank_(p.weight_min_kg),
-      weight_max_kg: numOrBlank_(p.weight_max_kg), notes: String(p.notes || '')
+      weight_max_kg: numOrBlank_(p.weight_max_kg), sets_json: String(p.sets_json || ''), notes: String(p.notes || '')
     };
     return headers.map(h => Object.prototype.hasOwnProperty.call(obj,h) ? obj[h] : '');
   });

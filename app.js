@@ -1,4 +1,4 @@
-// Hockey Fit Frontend – Version 0.5
+// Larry Fit Frontend – Version 0.6
 const state = {
   data: { weights: [], measurements: [], training: [], exercises: [] },
   workout: null
@@ -42,22 +42,24 @@ function num(v,d=1){ const n=Number(v); return Number.isFinite(n)?n.toFixed(d):'
 function isStrength(type){ return !!workoutPlans[type]; }
 function ytSearch(q){ return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q); }
 
+// Links are deliberately matched to the equipment available in this gym:
+// dumbbells/adjustable bench, Smith/Multipower, cable/Dual Adjustable Pulley and Roman-chair bench.
 const exerciseVideos = {
-  'Goblet Squat': ['NASM goblet squat proper form tutorial','goblet squat common mistakes dos and donts'],
-  'Bankdrücken Multipower': ['smith machine bench press proper form tutorial','smith machine bench press common mistakes'],
-  'Latziehen Kabelzug': ['NASM lat pulldown proper form tutorial','lat pulldown common mistakes dos and donts'],
-  'Schulterdrücken Kurzhanteln': ['NASM dumbbell shoulder press proper form','dumbbell shoulder press common mistakes'],
-  'Rudern Kabelzug': ['seated cable row proper form tutorial','seated cable row common mistakes'],
-  'Seitheben Kurzhanteln': ['dumbbell lateral raise proper form tutorial','dumbbell lateral raise common mistakes'],
-  'Bauch auf dem Bock': ['decline bench crunch proper form tutorial','decline sit up common mistakes'],
-  'Plank': ['plank proper form tutorial','plank common mistakes dos and donts'],
-  'Ausfallschritte mit Kurzhanteln': ['dumbbell lunge proper form tutorial','dumbbell lunge common mistakes'],
-  'Brustdrücken Kurzhanteln': ['dumbbell bench press proper form tutorial','dumbbell bench press common mistakes'],
-  'Latziehen enger Griff': ['close grip lat pulldown proper form tutorial','close grip lat pulldown common mistakes'],
-  'Face Pull Kabelzug': ['face pull proper form tutorial','face pull common mistakes'],
-  'Rumänisches Kreuzheben Kurzhanteln': ['NASM dumbbell Romanian deadlift proper form','dumbbell Romanian deadlift common mistakes'],
-  'Einarmiges Kabelrudern': ['one arm cable row proper form tutorial','single arm cable row common mistakes'],
-  'Rückenstrecker auf dem Bock': ['Roman chair back extension proper form tutorial','back extension common mistakes']
+  'Goblet Squat': {tutorial:'https://www.youtube.com/watch?v=nfX7IFK9UNI', mistakes:ytSearch('goblet squat common mistakes dumbbell proper form')},
+  'Bankdrücken Multipower': {tutorial:ytSearch('Smith Machine bench press proper form tutorial'), mistakes:ytSearch('Smith Machine bench press common mistakes')},
+  'Latziehen Kabelzug': {tutorial:ytSearch('cable lat pulldown proper form tutorial'), mistakes:ytSearch('lat pulldown common mistakes cable machine')},
+  'Schulterdrücken Kurzhanteln': {tutorial:ytSearch('seated dumbbell shoulder press adjustable bench proper form'), mistakes:ytSearch('seated dumbbell shoulder press common mistakes')},
+  'Rudern Kabelzug': {tutorial:ytSearch('seated cable row dual adjustable pulley proper form'), mistakes:ytSearch('seated cable row common mistakes cable machine')},
+  'Seitheben Kurzhanteln': {tutorial:ytSearch('dumbbell lateral raise proper form tutorial'), mistakes:ytSearch('dumbbell lateral raise common mistakes')},
+  'Bauch auf dem Bock': {tutorial:ytSearch('decline bench crunch proper form tutorial'), mistakes:ytSearch('decline bench crunch common mistakes')},
+  'Plank': {tutorial:'https://www.youtube.com/watch?v=mwlp75MS6Rg', mistakes:ytSearch('plank common mistakes proper form')},
+  'Ausfallschritte mit Kurzhanteln': {tutorial:ytSearch('dumbbell lunges proper form tutorial'), mistakes:ytSearch('dumbbell lunge common mistakes')},
+  'Brustdrücken Kurzhanteln': {tutorial:ytSearch('dumbbell bench press adjustable bench proper form'), mistakes:ytSearch('dumbbell bench press common mistakes')},
+  'Latziehen enger Griff': {tutorial:ytSearch('close neutral grip cable lat pulldown proper form'), mistakes:ytSearch('close grip lat pulldown common mistakes')},
+  'Face Pull Kabelzug': {tutorial:ytSearch('cable face pull rope proper form tutorial'), mistakes:ytSearch('cable face pull common mistakes')},
+  'Rumänisches Kreuzheben Kurzhanteln': {tutorial:'https://www.youtube.com/watch?v=aa57T45iFSE', mistakes:ytSearch('dumbbell Romanian deadlift common mistakes')},
+  'Einarmiges Kabelrudern': {tutorial:ytSearch('single arm cable row dual adjustable pulley proper form'), mistakes:ytSearch('single arm cable row common mistakes')},
+  'Rückenstrecker auf dem Bock': {tutorial:ytSearch('Roman chair back extension proper form tutorial'), mistakes:ytSearch('Roman chair back extension common mistakes')}
 };
 
 function jsonp(action='all', extra={}){
@@ -118,6 +120,9 @@ function renderAll(){
   $('weightList').innerHTML=w.slice(-12).reverse().map(x=>`<div class="list-row"><div><strong>${esc(x.date)}</strong><small>Morgengewicht</small></div><div class="right"><strong>${num(x.weight_kg)} kg</strong></div></div>`).join('')||'<p class="muted">Noch keine Einträge.</p>';
   $('waistList').innerHTML=m.slice(-12).reverse().map(x=>`<div class="list-row"><div><strong>${esc(x.date)}</strong></div><div class="right"><strong>${num(x.waist_cm)} cm</strong></div></div>`).join('')||'<p class="muted">Noch keine Einträge.</p>';
   $('trainingList').innerHTML=t.slice(-12).reverse().map(x=>{const z=x.type==='Zone 2'&&x.device?` · ${esc(x.device)}${x.level!==''&&x.level!=null?' Stufe '+esc(x.level):''}${x.calories?' · '+esc(x.calories)+' kcal':''}`:'';return `<div class="list-row"><div><strong>${esc(x.type)}</strong><small>${esc(x.date)} · ${esc(x.duration_min)} min${x.rpe?' · RPE '+esc(x.rpe):''}${z}</small></div><div class="right"><strong>${x.avg_hr?esc(x.avg_hr)+' Ø':'—'}</strong><small>${x.max_hr?'max '+esc(x.max_hr):''}</small></div></div>`}).join('')||'<p class="muted">Noch keine Trainings.</p>';
+  $('zone2HrLow').value=localStorage.getItem('lf_z2_low')||125;
+  $('zone2HrHigh').value=localStorage.getItem('lf_z2_high')||140;
+  renderCoachInsights();
 }
 
 function renderWeightChart(rows){
@@ -133,7 +138,7 @@ function showView(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!==id));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
   const names={dashboardView:'Dashboard',weightView:'Gewicht',trainingView:'Training',bodyView:'Bauchumfang',settingsView:'Einstellungen',setupView:'Setup'};
-  $('pageTitle').textContent=names[id]||'Hockey Fit';
+  $('pageTitle').textContent=names[id]||'Larry Fit';
   if(id==='trainingView' && !state.workout) resetTrainingWizard();
 }
 function showSetup(){ $('apiUrl').value=config().url; $('apiToken').value=config().token; showView('setupView'); }
@@ -162,7 +167,7 @@ function startTrainingWizard(){
   state.workout={ date, type, exerciseIndex:0, exercises:[] };
   hideTrainingCards();
   if(isStrength(type)){
-    state.workout.exercises=workoutPlans[type].map(e=>({ ...e, weight_min_kg:'', weight_max_kg:'', duration_sec:e.name==='Plank'?45:'', notes:'', warmup_minutes:e.kind==='warmup'?(e.minutes||10):'', warmup_level:'', warmup_calories:'' }));
+    state.workout.exercises=workoutPlans[type].map(e=>({ ...e, weight_min_kg:'', weight_max_kg:'', duration_sec:e.name==='Plank'?45:'', set_data:!e.kind?Array.from({length:e.sets},()=>({reps:e.name==='Plank'?1:e.reps,weight_kg:'',duration_sec:e.name==='Plank'?45:''})):[], notes:'', warmup_minutes:e.kind==='warmup'?(e.minutes||10):'', warmup_level:'', warmup_calories:'' }));
     $('exerciseWizardCard').classList.remove('hidden');
     renderExerciseStep();
   } else if(type==='Zone 2') {
@@ -208,18 +213,48 @@ function saveCurrentExerciseFields(){
     return;
   }
   if(e.kind) return;
-  e.sets=Number($('exerciseSets').value)||e.sets;
+  const rows=[...document.querySelectorAll('#setEntryArea .set-row')];
+  e.set_data=rows.map(row=>({
+    reps:e.name==='Plank'?1:(Number(row.querySelector('.set-reps')?.value)||0),
+    weight_kg:e.name==='Plank'?'':(row.querySelector('.set-weight')?.value||''),
+    duration_sec:e.name==='Plank'?(Number(row.querySelector('.set-duration')?.value)||0):''
+  }));
+  e.sets=e.set_data.length;
   if(e.name==='Plank'){
     e.reps=1;
-    e.duration_sec=Number($('exerciseDurationSec').value)||e.duration_sec||45;
-    e.weight_min_kg='';
-    e.weight_max_kg='';
+    const ds=e.set_data.map(x=>Number(x.duration_sec)).filter(Number.isFinite);
+    e.duration_sec=ds.length?Math.round(ds.reduce((a,b)=>a+b,0)/ds.length):45;
+    e.weight_min_kg=''; e.weight_max_kg='';
   } else {
-    e.reps=Number($('exerciseReps').value)||e.reps;
-    e.weight_min_kg=$('exerciseWeightMin').value;
-    e.weight_max_kg=$('exerciseWeightMax').value;
+    const rs=e.set_data.map(x=>Number(x.reps)).filter(Number.isFinite);
+    const ws=e.set_data.map(x=>Number(x.weight_kg)).filter(Number.isFinite);
+    e.reps=rs.length?Math.max(...rs):e.reps;
+    e.weight_min_kg=ws.length?Math.min(...ws):'';
+    e.weight_max_kg=ws.length?Math.max(...ws):'';
   }
   e.notes=$('exerciseNotes').value.trim();
+}
+
+function parseSetData(row){
+  try { const x=JSON.parse(row?.sets_json||'[]'); return Array.isArray(x)?x:[]; } catch(_){ return []; }
+}
+function incrementFor(name){
+  return /Kurzhantel|Goblet|Ausfallschritte|Rumänisches/.test(name)?1:2.5;
+}
+function progressionFor(e,prev){
+  if(!prev || e.name==='Plank') return null;
+  const sets=parseSetData(prev);
+  if(!sets.length) return null;
+  const target=e.reps;
+  const weights=sets.map(x=>Number(x.weight_kg)).filter(Number.isFinite);
+  const reps=sets.map(x=>Number(x.reps)).filter(Number.isFinite);
+  if(!weights.length || reps.length!==sets.length) return null;
+  const base=Math.max(...weights); const inc=incrementFor(e.name);
+  const missed=reps.reduce((sum,r)=>sum+Math.max(0,target-r),0);
+  const same=weights.every(w=>Math.abs(w-base)<0.001);
+  if(same && missed===0) return {weight:base+inc,text:`Alle Soll-Reps geschafft → nächstes Mal ca. ${base+inc} kg versuchen.`};
+  if(missed<=2) return {weight:base,text:`Fast alle Soll-Reps geschafft → ${base} kg nochmals bestätigen.`};
+  return {weight:Math.max(0,base-inc),text:`Mehrere Reps gefehlt → Technik priorisieren; ca. ${Math.max(0,base-inc)} kg erwägen.`};
 }
 
 function lastExerciseEntry(name){
@@ -238,52 +273,28 @@ function renderExerciseStep(){
   $('exerciseStepLabel').textContent=e.kind==='warmup'?'WARM-UP · 10 MIN':e.kind==='cooldown'?'COOL-DOWN · 5 MIN':`ÜBUNG ${strengthNo} / 8`;
   $('exerciseName').textContent=e.name;
   $('exerciseInstruction').textContent=e.help;
-  const linkBox=$('exerciseLinks');
-  const vids=exerciseVideos[e.name];
-  if(vids && !e.kind){
-    linkBox.innerHTML=`<a href="${ytSearch(vids[0])}" target="_blank" rel="noopener">▶ Tutorial</a><a href="${ytSearch(vids[1])}" target="_blank" rel="noopener">⚠ Dos & Don'ts</a>`;
-    linkBox.classList.remove('hidden');
-  } else { linkBox.innerHTML=''; linkBox.classList.add('hidden'); }
+  const linkBox=$('exerciseLinks'); const vids=exerciseVideos[e.name];
+  if(vids && !e.kind){ linkBox.innerHTML=`<a href="${vids.tutorial}" target="_blank" rel="noopener">▶ Tutorial</a><a href="${vids.mistakes}" target="_blank" rel="noopener">⚠ Dos & Don'ts</a>`; linkBox.classList.remove('hidden'); }
+  else { linkBox.innerHTML=''; linkBox.classList.add('hidden'); }
   $('warmupFields').classList.toggle('hidden',e.kind!=='warmup');
   $('exerciseFields').classList.toggle('hidden',!!e.kind);
   if(e.kind==='warmup'){
-    $('warmupMinutes').value=e.warmup_minutes||10;
-    $('warmupLevel').value=e.warmup_level||'';
-    $('warmupCalories').value=e.warmup_calories||'';
+    $('warmupMinutes').value=e.warmup_minutes||10; $('warmupLevel').value=e.warmup_level||''; $('warmupCalories').value=e.warmup_calories||'';
   }
   if(!e.kind){
-    const isPlank=e.name==='Plank';
-    $('exerciseSets').value=e.sets;
-    $('exerciseReps').value=e.reps;
-    $('exerciseDurationSec').value=e.duration_sec||45;
-    $('exerciseWeightMin').value=e.weight_min_kg;
-    $('exerciseWeightMax').value=e.weight_max_kg;
     $('exerciseNotes').value=e.notes||'';
-    $('exerciseRepsLabel').classList.toggle('hidden',isPlank);
-    $('exerciseDurationField').classList.toggle('hidden',!isPlank);
-    $('exerciseWeightFields').classList.toggle('hidden',isPlank);
-    const prev=lastExerciseEntry(e.name);
-    const box=$('lastExerciseWeight');
+    const prev=lastExerciseEntry(e.name); const box=$('lastExerciseWeight'); const hint=$('progressionHint');
     if(prev){
-      if(isPlank){
-        const sec=(prev.duration_sec!==''&&prev.duration_sec!=null)?prev.duration_sec:'—';
-        box.innerHTML=`<strong>Letztes Training:</strong> ${esc(sec)} Sek./Satz <span class="muted">(${esc(prev.date||'')})</span>`;
-      } else {
-        const min=(prev.weight_min_kg!==''&&prev.weight_min_kg!=null)?prev.weight_min_kg:'—';
-        const max=(prev.weight_max_kg!==''&&prev.weight_max_kg!=null)?prev.weight_max_kg:'—';
-        box.innerHTML=`<strong>Letztes Training:</strong> ${esc(min)}–${esc(max)} kg <span class="muted">(${esc(prev.date||'')})</span>`;
-      }
-      box.classList.remove('hidden');
-    } else {
-      box.textContent=isPlank?'Noch keine frühere Haltedauer für Plank.':'Noch kein früheres Gewicht für diese Übung.';
-      box.classList.remove('hidden');
-    }
-  } else {
-    $('lastExerciseWeight').classList.add('hidden');
-    $('exerciseRepsLabel').classList.remove('hidden');
-    $('exerciseDurationField').classList.add('hidden');
-    $('exerciseWeightFields').classList.remove('hidden');
-  }
+      const ps=parseSetData(prev);
+      const prevText=ps.length ? ps.map((x,i)=>e.name==='Plank'?`S${i+1}: ${x.duration_sec||'—'} s`:`S${i+1}: ${x.reps||'—'}×${x.weight_kg||'—'} kg`).join(' · ') : (e.name==='Plank'?`${prev.duration_sec||'—'} Sek./Satz`:`${prev.weight_min_kg||'—'}–${prev.weight_max_kg||'—'} kg`);
+      box.innerHTML=`<strong>Letztes Training:</strong> ${esc(prevText)} <span class="muted">(${esc(prev.date||'')})</span>`; box.classList.remove('hidden');
+      const prog=progressionFor(e,prev); if(prog){hint.textContent='Larry: '+prog.text;hint.classList.remove('hidden');}else hint.classList.add('hidden');
+    } else { box.textContent='Noch keine frühere Einheit für diese Übung.';box.classList.remove('hidden');hint.classList.add('hidden'); }
+    const data=(e.set_data&&e.set_data.length)?e.set_data:Array.from({length:e.sets},()=>({reps:e.name==='Plank'?1:e.reps,weight_kg:'',duration_sec:e.name==='Plank'?45:''}));
+    $('setEntryArea').innerHTML='<div class="set-head">Satz für Satz</div>'+data.map((x,i)=>e.name==='Plank'
+      ? `<div class="set-row"><b>Satz ${i+1}</b><label>Sek.<input class="set-duration" type="number" min="5" max="600" value="${esc(x.duration_sec||45)}"></label></div>`
+      : `<div class="set-row"><b>Satz ${i+1}</b><label>Reps<input class="set-reps" type="number" min="0" max="50" value="${esc(x.reps||e.reps)}"></label><label>kg<input class="set-weight" type="number" step="0.5" min="0" max="500" value="${esc(x.weight_kg||'')}"></label></div>`).join('');
+  } else { $('lastExerciseWeight').classList.add('hidden'); $('progressionHint').classList.add('hidden'); $('setEntryArea').innerHTML=''; }
   $('exerciseBackBtn').disabled=w.exerciseIndex===0;
   $('exerciseNextBtn').textContent=w.exerciseIndex===total-1?'Zum Abschluss →':'Nächste Übung →';
 }
@@ -298,7 +309,7 @@ function nextExercise(){
   $('finishStepLabel').textContent='LETZTER SCHRITT';
   $('exerciseSummary').classList.remove('hidden');
   $('zone2FinishFields').classList.add('hidden');
-  $('exerciseSummary').innerHTML='<strong>Übungen erfasst</strong>'+w.exercises.filter(e=>!e.kind).map(e=>{const detail=e.name==='Plank'?`${esc(e.sets)}×${esc(e.duration_sec||45)} Sek.`:`${esc(e.sets)}×${esc(e.reps)} · ${e.weight_min_kg||'—'}–${e.weight_max_kg||'—'} kg`;return `<div><span>${esc(e.name)}</span><b>${detail}</b></div>`}).join('');
+  $('exerciseSummary').innerHTML='<strong>Übungen erfasst</strong>'+w.exercises.filter(e=>!e.kind).map(e=>{const detail=e.name==='Plank'?(e.set_data||[]).map((x,i)=>`S${i+1} ${x.duration_sec||'—'}s`).join(' · '):(e.set_data||[]).map((x,i)=>`S${i+1} ${x.reps||'—'}×${x.weight_kg||'—'}kg`).join(' · ');return `<div><span>${esc(e.name)}</span><b>${detail}</b></div>`}).join('');
   $('finishBackBtn').textContent='← Letzte Übung';
 }
 
@@ -330,7 +341,7 @@ async function saveWorkout(){
   const exercises=isStrength(w.type)?w.exercises.filter(e=>!e.kind).map((e,idx)=>({
     date:w.date, training_type:w.type, exercise_order:idx+1, exercise:e.name, sets:e.sets, reps:e.name==='Plank'?1:e.reps,
     duration_sec:e.name==='Plank'?(e.duration_sec||45):'', weight_min_kg:e.name==='Plank'?'':(e.weight_min_kg||''),
-    weight_max_kg:e.name==='Plank'?'':(e.weight_max_kg||''), notes:e.notes||''
+    weight_max_kg:e.name==='Plank'?'':(e.weight_max_kg||''), sets_json:JSON.stringify(e.set_data||[]), notes:e.notes||''
   })):[];
   try{
     const beforeCount=(state.data.exercises||[]).length;
@@ -349,6 +360,26 @@ async function saveWorkout(){
   }catch(e){ setStatus('trainingStatus',e.message,'err'); }
 }
 
+
+function renderCoachInsights(){
+  const out=[]; const weights=sorted(state.data.weights||[]);
+  if(weights.length>=14){
+    const recent=avg(weights.slice(-7).map(x=>Number(x.weight_kg))); const prev=avg(weights.slice(-14,-7).map(x=>Number(x.weight_kg))); const delta=recent-prev;
+    if(delta>-0.2) out.push(`⚖ Gewicht: ${delta>=0?'+':''}${delta.toFixed(1)} kg/Woche. Unter Zieltempo – Portionen/Schritte prüfen.`);
+    else if(delta<-0.8) out.push(`⚖ Gewicht: ${delta.toFixed(1)} kg/Woche. Schneller als geplant – Energiezufuhr und Regeneration prüfen.`);
+    else out.push(`✓ Gewicht: ${delta.toFixed(1)} kg/Woche – im sinnvollen Zielbereich.`);
+  }
+  const z=(state.data.training||[]).filter(x=>x.type==='Zone 2'&&Number(x.avg_hr)).sort((a,b)=>String(a.date).localeCompare(String(b.date))).pop();
+  if(z){ const lo=Number(localStorage.getItem('lf_z2_low')||125), hi=Number(localStorage.getItem('lf_z2_high')||140), hr=Number(z.avg_hr); const dev=z.device?`${z.device}${z.level!==''&&z.level!=null?' Stufe '+z.level:''}`:'Zone 2';
+    if(hr<lo) out.push(`❤️ ${dev}: Ø ${hr} bpm – unter deinem Zone-2-Ziel. Nächstes Mal Stufe leicht erhöhen.`);
+    else if(hr>hi) out.push(`❤️ ${dev}: Ø ${hr} bpm – über deinem Zone-2-Ziel. Nächstes Mal Stufe leicht reduzieren.`);
+    else out.push(`✓ ${dev}: Ø ${hr} bpm – Zone 2 passt. Stufe beibehalten.`);
+  }
+  const ex=(state.data.exercises||[]).filter(x=>x.sets_json).sort((a,b)=>(String(a.date)+String(a.timestamp)).localeCompare(String(b.date)+String(b.timestamp))).pop();
+  if(ex){ const plan=[...(workoutPlans[ex.training_type]||[])].find(x=>x.name===ex.exercise); const prog=plan?progressionFor(plan,ex):null; if(prog) out.push(`🏋 ${ex.exercise}: ${prog.text}`); }
+  $('coachInsights').innerHTML=out.length?out.map(x=>`<div class="coach-line">${esc(x)}</div>`).join(''):'<p class="muted">Noch nicht genug Daten für Empfehlungen.</p>';
+}
+
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 $('refreshBtn').addEventListener('click',loadData);
 $('saveSetupBtn').addEventListener('click',async()=>{
@@ -358,6 +389,7 @@ $('saveSetupBtn').addEventListener('click',async()=>{
 });
 $('changeConnectionBtn').addEventListener('click',showSetup);
 $('saveGoalBtn').addEventListener('click',()=>{localStorage.setItem('hf_goal',$('goalInput').value||83);renderAll();});
+$('saveZone2Btn').addEventListener('click',()=>{localStorage.setItem('lf_z2_low',$('zone2HrLow').value||125);localStorage.setItem('lf_z2_high',$('zone2HrHigh').value||140);renderAll();});
 $('saveWeightBtn').addEventListener('click',()=>{const v=Number($('weightKg').value);if(!v)return setStatus('weightStatus','Gewicht fehlt','err');saveAndRefresh('addWeight',{date:$('weightDate').value,weight_kg:v},'weightStatus');$('weightKg').value='';});
 $('saveWaistBtn').addEventListener('click',()=>{const v=Number($('waistCm').value);if(!v)return setStatus('waistStatus','Umfang fehlt','err');saveAndRefresh('addMeasurement',{date:$('waistDate').value,waist_cm:v},'waistStatus');$('waistCm').value='';});
 $('startTrainingBtn').addEventListener('click',startTrainingWizard);

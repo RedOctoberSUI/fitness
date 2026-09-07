@@ -1,124 +1,25 @@
-# Hockey Fit Tracker — GitHub Pages + Google Sheets
+# Larry Fit v0.6
 
-Persönlicher Fitness-Tracker ohne Server, Supabase oder Vercel.
+Personal fitness tracker for GitHub Pages + Google Sheets + Google Apps Script.
 
-- **GitHub Pages** liefert die Oberfläche (`index.html`, `styles.css`, `app.js`).
-- **Google Sheets** speichert Gewicht, Bauchumfang und Trainingsdaten.
-- **Google Apps Script** ist die kleine API zwischen Webseite und Sheet.
-- API-URL und privater Token werden **nicht im Repo**, sondern nur im `localStorage` des jeweiligen Browsers gespeichert.
+## v0.6 changes
+- Renamed the app from Hockey Fit to **Larry Fit**.
+- Strength exercises are logged **set by set**: reps + weight for every set.
+- Plank is logged as seconds for every set.
+- `Exercises` keeps the old min/max columns for compatibility and adds `sets_json` with the detailed set data.
+- The last set-by-set result is shown when an exercise opens.
+- Transparent strength progression: if all target reps were completed at the same weight, Larry suggests a small increase next time; near misses hold the weight; larger misses suggest a small reduction/technique focus.
+- Larry Coach dashboard: 7-day weight trend, latest Zone-2 heart-rate guidance and latest strength progression cue.
+- Zone-2 target HR is adjustable in Settings (initial default 125–140 bpm until enough personal data exists).
+- Exercise video links/searches are tailored to the actual equipment: dumbbells + adjustable bench, Smith/Multipower, cable/Dual Adjustable Pulley and Roman-chair bench.
+- Warm-up still logs time, level and displayed kcal.
+- Strength A/B finish still logs average HR, max HR and RPE.
 
-## 1. Google Sheet vorbereiten
+## Update
+1. Replace `index.html`, `app.js`, and `styles.css` on GitHub Pages.
+2. Replace Apps Script `Code.gs` with `backend/Code.gs`.
+3. Run `setup()` once. It adds `sets_json` to the existing `Exercises` sheet without deleting old data.
+4. Apps Script: Deploy > Manage deployments > Edit > New version > Deploy.
+5. Hard refresh the web app if the browser still shows an older version.
 
-1. Erstelle ein neues leeres Google Sheet, z. B. `Hockey Fit Data`.
-2. Öffne **Erweiterungen → Apps Script**.
-3. Lösche den Beispielcode und kopiere den Inhalt von `backend/Code.gs` hinein.
-4. Speichern.
-5. Wähle oben die Funktion `setup` und klicke **Ausführen**.
-6. Beim ersten Mal die Google-Berechtigungen bestätigen.
-7. `setup()` erstellt die Tabs `Weight`, `Measurements` und `Training` und zeigt dir deinen privaten API-Token. **Token kopieren.**
-
-## 2. Apps Script als Web-App veröffentlichen
-
-1. Im Apps-Script-Editor oben rechts **Bereitstellen → Neue Bereitstellung**.
-2. Typ: **Web-App**.
-3. Ausführen als: **Ich**.
-4. Zugriff: **Jeder** (die API selbst ist zusätzlich mit deinem privaten Token geschützt).
-5. Bereitstellen und die Web-App-URL kopieren. Sie endet normalerweise auf `/exec`.
-
-Wichtig: Wenn du `Code.gs` später änderst, musst du unter **Bereitstellungen verwalten** eine neue Version der bestehenden Web-App bereitstellen.
-
-## 3. GitHub Pages
-
-1. Neues GitHub-Repository erstellen.
-2. Diese Dateien ins Root des Repos laden:
-   - `index.html`
-   - `styles.css`
-   - `app.js`
-   - optional `backend/` und diese README
-3. GitHub: **Settings → Pages**.
-4. Source: **Deploy from a branch**.
-5. Branch: `main`, Ordner: `/ (root)`.
-6. Speichern. Nach kurzer Zeit zeigt GitHub die Pages-URL an.
-
-## 4. Tracker einmalig verbinden
-
-Beim ersten Öffnen der Seite fragt die App nach:
-
-- Apps-Script-Web-App-URL
-- privatem API-Token aus Schritt 1
-
-Beides wird nur im Browser gespeichert. Auf einem zweiten Gerät musst du diese beiden Werte einmal erneut eingeben.
-
-## Eigene Domain
-
-In GitHub unter **Settings → Pages → Custom domain** deine Domain eintragen und den von GitHub angezeigten DNS-Hinweisen folgen.
-
-## Datenstruktur im Sheet
-
-### Weight
-`timestamp | date | weight_kg`
-
-### Measurements
-`timestamp | date | waist_cm`
-
-### Training
-`timestamp | date | type | duration_min | avg_hr | max_hr | rpe | notes`
-
-## Sicherheit
-
-Eine statische GitHub-Pages-Seite kann kein echtes Geheimnis sicher im ausgelieferten JavaScript verstecken. Deshalb ist der Token **nicht im Code** enthalten. Er wird einmal manuell eingegeben und liegt nur im Browser-`localStorage`.
-
-Die Apps-Script-Web-App ist technisch öffentlich erreichbar, akzeptiert aber ohne korrekten Token weder Lese- noch Schreibzugriffe. Behandle den Token wie ein Passwort und committe ihn niemals ins GitHub-Repo.
-
-## Bereits enthalten
-
-- tägliches Gewicht
-- 7-Tage-Schnitt
-- Wochenvergleich
-- Zielgewicht (Default 83 kg)
-- Gewichtsgrafik
-- Bauchumfang
-- Training inkl. Dauer, Ø-Puls, Max-Puls, RPE und Notiz
-- dein Start-Wochenplan im Dashboard
-- responsive/mobile Oberfläche
-
-## Sinnvolle nächste Ausbaustufe
-
-- Kraft A/B mit einzelnen Übungen, Sätzen, Wiederholungen und Gewichten
-- automatische Progression
-- Zone-2-Zielpuls aus deinen echten Belastungsdaten
-- Schritte pro Tag
-- Trainings-/Gewichtstrends über 4/12 Wochen
-- Datenexport
-
-## Version 0.5
-- Kraft A und B: jeweils 10 Min Warm-up + 8 Übungen + 5 Min Cool-down/Dehnen.
-- Warm-up und Cool-down laufen als eigene Schritte mit Anleitung im Training-Wizard.
-- RPE ist ein Dropdown (1–10), Standardwert 7.
-- "Reps" wird als kurze Bezeichnung beibehalten.
-
-
-## Neu in v0.5
-- Zone 2: Gerät-Dropdown (Rudern, Velo, Stepper)
-- Zone 2: freies Zahlenfeld für Stufe / Resistance
-- Zone 2: angezeigte kcal beim Abschluss
-- Training-Sheet erhält die Felder `device`, `level`, `calories`
-- `setup()` ergänzt fehlende Spalten in bestehenden Sheets, ohne vorhandene Daten zu löschen
-- sichtbare Versionsnummer im Frontend und Backend auf v0.5
-
-
-## Neu in v0.5
-
-- Krafttraining wird als **ein gemeinsamer Request** gespeichert. Dadurch landen bei Kraft A/B zuverlässig alle 8 Übungen im Tab `Exercises`.
-- `Exercises` erhält die zusätzliche Spalte `duration_sec` für zeitbasierte Übungen wie Plank.
-- Plank wird mit Sätzen + Haltedauer gespeichert, nicht mit künstlichem Gewicht.
-- Bei jeder Kraftübung erscheinen zwei YouTube-Links: **Tutorial** und **Dos & Don'ts**. Die Links öffnen gezielte YouTube-Suchen zur jeweiligen Übung.
-- Nach dem Speichern prüft das Frontend, ob die erwartete Zahl von Übungszeilen zurückgelesen wurde.
-- Frontend und `Code.gs` tragen beide Version **0.5**.
-
-### Update von v0.4
-
-1. Auf GitHub `index.html`, `app.js` und `styles.css` ersetzen.
-2. In Apps Script `Code.gs` ersetzen.
-3. `setup()` einmal ausführen. Dadurch wird `duration_sec` ergänzt; bestehende Daten bleiben erhalten.
-4. Unter **Bereitstellungen verwalten → Bearbeiten → Neue Version → Bereitstellen** das Backend neu veröffentlichen.
+Existing data remains compatible. Old exercise rows without `sets_json` continue to display their min/max values.

@@ -11,7 +11,7 @@
   <div class="shell">
     <header>
       <div>
-        <div class="eyebrow">LARRY FIT <span class="version">v0.5</span></div>
+        <div class="eyebrow">LARRY FIT <span class="version">v0.6</span></div>
         <h1 id="pageTitle">Dashboard</h1>
       </div>
       <button class="icon-btn" id="refreshBtn" title="Aktualisieren">↻</button>
@@ -55,6 +55,11 @@
         <div class="card chart-card">
           <div class="card-head"><h2>Gewicht</h2><span class="muted">letzte 30 Einträge</span></div>
           <svg id="weightChart" viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="Gewichtsverlauf"></svg>
+        </div>
+
+        <div class="card coach-card">
+          <div class="card-head"><h2>Larry Coach</h2><span class="muted">aus deinen Daten</span></div>
+          <div id="coachInsights"><p class="muted">Noch nicht genug Daten für Empfehlungen.</p></div>
         </div>
 
         <div class="card plan-card">
@@ -133,18 +138,9 @@
             </div>
           </div>
           <div id="exerciseFields">
-            <div class="two-col">
-              <label>Sätze<input id="exerciseSets" type="number" min="1" max="10" inputmode="numeric" /></label>
-              <label id="exerciseRepsLabel">Reps pro Satz<input id="exerciseReps" type="number" min="1" max="50" inputmode="numeric" /></label>
-            </div>
-            <div id="exerciseDurationField" class="hidden">
-              <label>Haltedauer pro Satz (Sek.)<input id="exerciseDurationSec" type="number" min="5" max="600" inputmode="numeric" placeholder="z. B. 45" /></label>
-            </div>
             <div id="lastExerciseWeight" class="exercise-help hidden"></div>
-            <div id="exerciseWeightFields" class="two-col">
-              <label>Min. Gewicht (kg)<input id="exerciseWeightMin" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 20" /></label>
-              <label>Max. Gewicht (kg)<input id="exerciseWeightMax" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 25" /></label>
-            </div>
+            <div id="progressionHint" class="coach-hint hidden"></div>
+            <div id="setEntryArea"></div>
             <label>Notiz zur Übung<input id="exerciseNotes" type="text" placeholder="optional, z. B. noch leicht" /></label>
           </div>
           <div class="wizard-actions">
@@ -209,6 +205,14 @@
           <h2>Einstellungen</h2>
           <label>Zielgewicht (kg)<input id="goalInput" type="number" step="0.1" min="50" max="200" /></label>
           <button class="primary" id="saveGoalBtn">Ziel speichern</button>
+          <hr />
+          <h2>Zone 2</h2>
+          <div class="two-col">
+            <label>Zielpuls min<input id="zone2HrLow" type="number" min="80" max="200" value="125" /></label>
+            <label>Zielpuls max<input id="zone2HrHigh" type="number" min="80" max="210" value="140" /></label>
+          </div>
+          <button class="secondary" id="saveZone2Btn">Zone-2-Bereich speichern</button>
+          <p class="fineprint">Startwert, bis wir genügend reale Pulsdaten aus deinen Trainings haben. Larry Fit nutzt den Ø-Puls für die Empfehlung.</p>
           <hr />
           <button class="secondary" id="changeConnectionBtn">Google-Sheet-Verbindung ändern</button>
           <p class="fineprint">API-URL und Token liegen nur in localStorage dieses Browsers, nicht im GitHub-Repository.</p>
