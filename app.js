@@ -1,4 +1,4 @@
-// Larry Fit Frontend – Version 0.6
+// Larry Fit Frontend – Version 0.7
 const state = {
   data: { weights: [], measurements: [], training: [], exercises: [] },
   workout: null
@@ -40,6 +40,31 @@ function setStatus(id,msg,type=''){ const e=$(id); e.textContent=msg; e.classNam
 function esc(s=''){ return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function num(v,d=1){ const n=Number(v); return Number.isFinite(n)?n.toFixed(d):'—'; }
 function isStrength(type){ return !!workoutPlans[type]; }
+
+// Weekly plan: Mon Kraft A, Tue Zone 2, Wed Kraft B, Thu rest,
+// Fri Unihockey, Sat rest/light, Sun HIIT.
+function plannedTrainingForDate(dateStr){
+  if(!dateStr) return {type:null,label:''};
+  const d=new Date(dateStr+'T12:00:00');
+  if(Number.isNaN(d.getTime())) return {type:null,label:''};
+  const plan={
+    0:{type:'HIIT',label:'HIIT'},
+    1:{type:'Kraft A',label:'Kraft A'},
+    2:{type:'Zone 2',label:'Zone 2'},
+    3:{type:'Kraft B',label:'Kraft B'},
+    4:{type:null,label:'Ruhetag'},
+    5:{type:'Unihockey',label:'Unihockey'},
+    6:{type:null,label:'Ruhetag / locker'}
+  };
+  return plan[d.getDay()] || {type:null,label:''};
+}
+
+function applyPlannedTraining(){
+  const plan=plannedTrainingForDate($('trainingDate').value || today());
+  if(plan.type) $('trainingType').value=plan.type;
+  const hint=$('trainingPlanHint');
+  if(hint) hint.textContent=plan.label ? `Dein Plan: ${plan.label}` : '';
+}
 function ytSearch(q){ return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q); }
 
 // Links are deliberately matched to the equipment available in this gym:
@@ -157,6 +182,7 @@ function resetTrainingWizard(){
   hideTrainingCards();
   $('trainingStartCard').classList.remove('hidden');
   $('trainingDate').value=today();
+  applyPlannedTraining();
   $('durationMin').value=''; $('rpe').value='7'; $('avgHr').value=''; $('maxHr').value=''; $('calories').value=''; $('trainingNotes').value=''; $('zone2Level').value=''; $('zone2FinishFields').classList.add('hidden');
   setStatus('trainingStatus','');
 }
@@ -392,6 +418,7 @@ $('saveGoalBtn').addEventListener('click',()=>{localStorage.setItem('hf_goal',$(
 $('saveZone2Btn').addEventListener('click',()=>{localStorage.setItem('lf_z2_low',$('zone2HrLow').value||125);localStorage.setItem('lf_z2_high',$('zone2HrHigh').value||140);renderAll();});
 $('saveWeightBtn').addEventListener('click',()=>{const v=Number($('weightKg').value);if(!v)return setStatus('weightStatus','Gewicht fehlt','err');saveAndRefresh('addWeight',{date:$('weightDate').value,weight_kg:v},'weightStatus');$('weightKg').value='';});
 $('saveWaistBtn').addEventListener('click',()=>{const v=Number($('waistCm').value);if(!v)return setStatus('waistStatus','Umfang fehlt','err');saveAndRefresh('addMeasurement',{date:$('waistDate').value,waist_cm:v},'waistStatus');$('waistCm').value='';});
+$('trainingDate').addEventListener('change',applyPlannedTraining);
 $('startTrainingBtn').addEventListener('click',startTrainingWizard);
 $('zone2NextBtn').addEventListener('click',zone2Next);
 $('zone2BackBtn').addEventListener('click',zone2Back);
@@ -401,4 +428,5 @@ $('cancelWizardBtn').addEventListener('click',resetTrainingWizard);
 $('finishBackBtn').addEventListener('click',finishBack);
 $('saveTrainingBtn').addEventListener('click',saveWorkout);
 ['weightDate','trainingDate','waistDate'].forEach(id=>$(id).value=today());
+applyPlannedTraining();
 if(hasConfig()) loadData(); else showSetup();

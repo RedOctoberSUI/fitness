@@ -13,5 +13,5 @@
 .exercise-links a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:#10141a;border:1px solid var(--line);color:var(--accent);border-radius:12px;padding:9px 11px;font-size:12px;font-weight:750}
 .exercise-links a:hover{border-color:var(--accent)}
 
-/* v0.6 – Larry Fit, set-by-set logging & coach */
+/* v0.7 – Larry Fit, planned-training preselection */
 .coach-line{padding:10px 0;border-top:1px solid var(--line);line-height:1.45;font-size:13px}.coach-line:first-child{border-top:0}.coach-hint{background:rgba(104,211,145,.08);border:1px solid rgba(104,211,145,.35);color:#bceccb;border-radius:14px;padding:12px 14px;margin:0 0 12px;font-size:13px;line-height:1.45}.set-head{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin:12px 0 4px}.set-row{display:grid;grid-template-columns:72px 1fr 1fr;gap:10px;align-items:end;border-top:1px solid var(--line);padding:8px 0}.set-row b{padding-bottom:13px;font-size:13px}.set-row label{margin:0}.set-row input{margin-top:4px}@media(max-width:420px){.set-row{grid-template-columns:62px 1fr 1fr;gap:7px}}

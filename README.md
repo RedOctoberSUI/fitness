@@ -1,8 +1,8 @@
-# Larry Fit v0.6
+# Larry Fit v0.7
 
 Personal fitness tracker for GitHub Pages + Google Sheets + Google Apps Script.
 
-## v0.6 changes
+## v0.7 changes
 - Renamed the app from Hockey Fit to **Larry Fit**.
 - Strength exercises are logged **set by set**: reps + weight for every set.
 - Plank is logged as seconds for every set.
@@ -14,6 +14,10 @@ Personal fitness tracker for GitHub Pages + Google Sheets + Google Apps Script.
 - Exercise video links/searches are tailored to the actual equipment: dumbbells + adjustable bench, Smith/Multipower, cable/Dual Adjustable Pulley and Roman-chair bench.
 - Warm-up still logs time, level and displayed kcal.
 - Strength A/B finish still logs average HR, max HR and RPE.
+
+- Training type is now preselected automatically from the weekly plan when opening Training or changing the training date.
+- Monday Kraft A, Tuesday Zone 2, Wednesday Kraft B, Friday Unihockey, Sunday HIIT.
+- Thursday shows Ruhetag; Saturday shows Ruhetag / locker, while keeping manual training selection available.
 
 ## Update
 1. Replace `index.html`, `app.js`, and `styles.css` on GitHub Pages.

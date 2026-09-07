@@ -1,6 +1,6 @@
 /**
  * Larry Fit Tracker – Google Sheets Backend
- * Version: 0.6
+ * Version: 0.7
  */
 
 function setup() {
