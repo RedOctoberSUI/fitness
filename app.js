@@ -1,3 +1,4 @@
+// Hockey Fit Frontend – Version 0.5
 const state = {
   data: { weights: [], measurements: [], training: [], exercises: [] },
   workout: null
@@ -39,6 +40,25 @@ function setStatus(id,msg,type=''){ const e=$(id); e.textContent=msg; e.classNam
 function esc(s=''){ return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function num(v,d=1){ const n=Number(v); return Number.isFinite(n)?n.toFixed(d):'—'; }
 function isStrength(type){ return !!workoutPlans[type]; }
+function ytSearch(q){ return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q); }
+
+const exerciseVideos = {
+  'Goblet Squat': ['NASM goblet squat proper form tutorial','goblet squat common mistakes dos and donts'],
+  'Bankdrücken Multipower': ['smith machine bench press proper form tutorial','smith machine bench press common mistakes'],
+  'Latziehen Kabelzug': ['NASM lat pulldown proper form tutorial','lat pulldown common mistakes dos and donts'],
+  'Schulterdrücken Kurzhanteln': ['NASM dumbbell shoulder press proper form','dumbbell shoulder press common mistakes'],
+  'Rudern Kabelzug': ['seated cable row proper form tutorial','seated cable row common mistakes'],
+  'Seitheben Kurzhanteln': ['dumbbell lateral raise proper form tutorial','dumbbell lateral raise common mistakes'],
+  'Bauch auf dem Bock': ['decline bench crunch proper form tutorial','decline sit up common mistakes'],
+  'Plank': ['plank proper form tutorial','plank common mistakes dos and donts'],
+  'Ausfallschritte mit Kurzhanteln': ['dumbbell lunge proper form tutorial','dumbbell lunge common mistakes'],
+  'Brustdrücken Kurzhanteln': ['dumbbell bench press proper form tutorial','dumbbell bench press common mistakes'],
+  'Latziehen enger Griff': ['close grip lat pulldown proper form tutorial','close grip lat pulldown common mistakes'],
+  'Face Pull Kabelzug': ['face pull proper form tutorial','face pull common mistakes'],
+  'Rumänisches Kreuzheben Kurzhanteln': ['NASM dumbbell Romanian deadlift proper form','dumbbell Romanian deadlift common mistakes'],
+  'Einarmiges Kabelrudern': ['one arm cable row proper form tutorial','single arm cable row common mistakes'],
+  'Rückenstrecker auf dem Bock': ['Roman chair back extension proper form tutorial','back extension common mistakes']
+};
 
 function jsonp(action='all', extra={}){
   return new Promise((resolve,reject)=>{
@@ -142,7 +162,7 @@ function startTrainingWizard(){
   state.workout={ date, type, exerciseIndex:0, exercises:[] };
   hideTrainingCards();
   if(isStrength(type)){
-    state.workout.exercises=workoutPlans[type].map(e=>({ ...e, weight_min_kg:'', weight_max_kg:'', notes:'', warmup_minutes:e.kind==='warmup'?(e.minutes||10):'', warmup_level:'', warmup_calories:'' }));
+    state.workout.exercises=workoutPlans[type].map(e=>({ ...e, weight_min_kg:'', weight_max_kg:'', duration_sec:e.name==='Plank'?45:'', notes:'', warmup_minutes:e.kind==='warmup'?(e.minutes||10):'', warmup_level:'', warmup_calories:'' }));
     $('exerciseWizardCard').classList.remove('hidden');
     renderExerciseStep();
   } else if(type==='Zone 2') {
@@ -189,9 +209,16 @@ function saveCurrentExerciseFields(){
   }
   if(e.kind) return;
   e.sets=Number($('exerciseSets').value)||e.sets;
-  e.reps=Number($('exerciseReps').value)||e.reps;
-  e.weight_min_kg=$('exerciseWeightMin').value;
-  e.weight_max_kg=$('exerciseWeightMax').value;
+  if(e.name==='Plank'){
+    e.reps=1;
+    e.duration_sec=Number($('exerciseDurationSec').value)||e.duration_sec||45;
+    e.weight_min_kg='';
+    e.weight_max_kg='';
+  } else {
+    e.reps=Number($('exerciseReps').value)||e.reps;
+    e.weight_min_kg=$('exerciseWeightMin').value;
+    e.weight_max_kg=$('exerciseWeightMax').value;
+  }
   e.notes=$('exerciseNotes').value.trim();
 }
 
@@ -211,6 +238,12 @@ function renderExerciseStep(){
   $('exerciseStepLabel').textContent=e.kind==='warmup'?'WARM-UP · 10 MIN':e.kind==='cooldown'?'COOL-DOWN · 5 MIN':`ÜBUNG ${strengthNo} / 8`;
   $('exerciseName').textContent=e.name;
   $('exerciseInstruction').textContent=e.help;
+  const linkBox=$('exerciseLinks');
+  const vids=exerciseVideos[e.name];
+  if(vids && !e.kind){
+    linkBox.innerHTML=`<a href="${ytSearch(vids[0])}" target="_blank" rel="noopener">▶ Tutorial</a><a href="${ytSearch(vids[1])}" target="_blank" rel="noopener">⚠ Dos & Don'ts</a>`;
+    linkBox.classList.remove('hidden');
+  } else { linkBox.innerHTML=''; linkBox.classList.add('hidden'); }
   $('warmupFields').classList.toggle('hidden',e.kind!=='warmup');
   $('exerciseFields').classList.toggle('hidden',!!e.kind);
   if(e.kind==='warmup'){
@@ -219,24 +252,37 @@ function renderExerciseStep(){
     $('warmupCalories').value=e.warmup_calories||'';
   }
   if(!e.kind){
+    const isPlank=e.name==='Plank';
     $('exerciseSets').value=e.sets;
     $('exerciseReps').value=e.reps;
+    $('exerciseDurationSec').value=e.duration_sec||45;
     $('exerciseWeightMin').value=e.weight_min_kg;
     $('exerciseWeightMax').value=e.weight_max_kg;
     $('exerciseNotes').value=e.notes||'';
+    $('exerciseRepsLabel').classList.toggle('hidden',isPlank);
+    $('exerciseDurationField').classList.toggle('hidden',!isPlank);
+    $('exerciseWeightFields').classList.toggle('hidden',isPlank);
     const prev=lastExerciseEntry(e.name);
     const box=$('lastExerciseWeight');
     if(prev){
-      const min=(prev.weight_min_kg!==''&&prev.weight_min_kg!=null)?prev.weight_min_kg:'—';
-      const max=(prev.weight_max_kg!==''&&prev.weight_max_kg!=null)?prev.weight_max_kg:'—';
-      box.innerHTML=`<strong>Letztes Training:</strong> ${esc(min)}–${esc(max)} kg <span class="muted">(${esc(prev.date||'')})</span>`;
+      if(isPlank){
+        const sec=(prev.duration_sec!==''&&prev.duration_sec!=null)?prev.duration_sec:'—';
+        box.innerHTML=`<strong>Letztes Training:</strong> ${esc(sec)} Sek./Satz <span class="muted">(${esc(prev.date||'')})</span>`;
+      } else {
+        const min=(prev.weight_min_kg!==''&&prev.weight_min_kg!=null)?prev.weight_min_kg:'—';
+        const max=(prev.weight_max_kg!==''&&prev.weight_max_kg!=null)?prev.weight_max_kg:'—';
+        box.innerHTML=`<strong>Letztes Training:</strong> ${esc(min)}–${esc(max)} kg <span class="muted">(${esc(prev.date||'')})</span>`;
+      }
       box.classList.remove('hidden');
     } else {
-      box.textContent='Noch kein früheres Gewicht für diese Übung.';
+      box.textContent=isPlank?'Noch keine frühere Haltedauer für Plank.':'Noch kein früheres Gewicht für diese Übung.';
       box.classList.remove('hidden');
     }
   } else {
     $('lastExerciseWeight').classList.add('hidden');
+    $('exerciseRepsLabel').classList.remove('hidden');
+    $('exerciseDurationField').classList.add('hidden');
+    $('exerciseWeightFields').classList.remove('hidden');
   }
   $('exerciseBackBtn').disabled=w.exerciseIndex===0;
   $('exerciseNextBtn').textContent=w.exerciseIndex===total-1?'Zum Abschluss →':'Nächste Übung →';
@@ -252,7 +298,7 @@ function nextExercise(){
   $('finishStepLabel').textContent='LETZTER SCHRITT';
   $('exerciseSummary').classList.remove('hidden');
   $('zone2FinishFields').classList.add('hidden');
-  $('exerciseSummary').innerHTML='<strong>Übungen erfasst</strong>'+w.exercises.filter(e=>!e.kind).map(e=>`<div><span>${esc(e.name)}</span><b>${esc(e.sets)}×${esc(e.reps)} · ${e.weight_min_kg||'—'}–${e.weight_max_kg||'—'} kg</b></div>`).join('');
+  $('exerciseSummary').innerHTML='<strong>Übungen erfasst</strong>'+w.exercises.filter(e=>!e.kind).map(e=>{const detail=e.name==='Plank'?`${esc(e.sets)}×${esc(e.duration_sec||45)} Sek.`:`${esc(e.sets)}×${esc(e.reps)} · ${e.weight_min_kg||'—'}–${e.weight_max_kg||'—'} kg`;return `<div><span>${esc(e.name)}</span><b>${detail}</b></div>`}).join('');
   $('finishBackBtn').textContent='← Letzte Übung';
 }
 
@@ -280,18 +326,24 @@ async function saveWorkout(){
   const dur=Number($('durationMin').value);
   if(!dur) return setStatus('trainingStatus','Dauer fehlt','err');
   const warm=isStrength(w.type)?w.exercises.find(e=>e.kind==='warmup'):null;
-  const trainingPayload={date:w.date,type:w.type,duration_min:dur,avg_hr:$('avgHr').value||'',max_hr:$('maxHr').value||'',rpe:$('rpe').value||'',device:w.type==='Zone 2'?(w.device||''):'',level:w.type==='Zone 2'?(w.level||''):'',calories:w.type==='Zone 2'?($('calories').value||''):'',warmup_minutes:warm?(warm.warmup_minutes||10):'',warmup_level:warm?(warm.warmup_level||''):'',warmup_calories:warm?(warm.warmup_calories||''):'',notes:$('trainingNotes').value||''};
+  const training={date:w.date,type:w.type,duration_min:dur,avg_hr:$('avgHr').value||'',max_hr:$('maxHr').value||'',rpe:$('rpe').value||'',device:w.type==='Zone 2'?(w.device||''):'',level:w.type==='Zone 2'?(w.level||''):'',calories:w.type==='Zone 2'?($('calories').value||''):'',warmup_minutes:warm?(warm.warmup_minutes||10):'',warmup_level:warm?(warm.warmup_level||''):'',warmup_calories:warm?(warm.warmup_calories||''):'',notes:$('trainingNotes').value||''};
+  const exercises=isStrength(w.type)?w.exercises.filter(e=>!e.kind).map((e,idx)=>({
+    date:w.date, training_type:w.type, exercise_order:idx+1, exercise:e.name, sets:e.sets, reps:e.name==='Plank'?1:e.reps,
+    duration_sec:e.name==='Plank'?(e.duration_sec||45):'', weight_min_kg:e.name==='Plank'?'':(e.weight_min_kg||''),
+    weight_max_kg:e.name==='Plank'?'':(e.weight_max_kg||''), notes:e.notes||''
+  })):[];
   try{
-    setStatus('trainingStatus','Speichere Training …');
-    post('addTraining',trainingPayload);
-    if(isStrength(w.type)){
-      w.exercises.filter(e=>!e.kind).forEach((e,idx)=>post('addExercise',{
-        date:w.date, training_type:w.type, exercise_order:idx+1, exercise:e.name,
-        sets:e.sets, reps:e.reps, weight_min_kg:e.weight_min_kg||'', weight_max_kg:e.weight_max_kg||'', notes:e.notes||''
-      }));
-    }
-    await new Promise(r=>setTimeout(r,1700));
+    const beforeCount=(state.data.exercises||[]).length;
+    setStatus('trainingStatus','Speichere Training und '+exercises.length+' Übungen …');
+    post('addWorkout',{training,exercises});
+    await new Promise(r=>setTimeout(r,1800));
     await loadData();
+    if(isStrength(w.type)){
+      const afterCount=(state.data.exercises||[]).length;
+      if(afterCount < beforeCount + exercises.length) throw new Error('Nicht alle Übungen wurden gespeichert. Bitte Google Sheet prüfen.');
+      const saved=(state.data.exercises||[]).slice(-exercises.length);
+      if(exercises.some(x=>!saved.some(y=>y.date===x.date && y.training_type===x.training_type && y.exercise===x.exercise))) throw new Error('Übungsdaten unvollständig. Bitte Google Sheet prüfen.');
+    }
     setStatus('trainingStatus','Gespeichert ✓','ok');
     setTimeout(resetTrainingWizard,700);
   }catch(e){ setStatus('trainingStatus',e.message,'err'); }

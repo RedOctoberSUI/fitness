@@ -91,17 +91,34 @@ Die Apps-Script-Web-App ist technisch öffentlich erreichbar, akzeptiert aber oh
 - Trainings-/Gewichtstrends über 4/12 Wochen
 - Datenexport
 
-## Version 0.4
+## Version 0.5
 - Kraft A und B: jeweils 10 Min Warm-up + 8 Übungen + 5 Min Cool-down/Dehnen.
 - Warm-up und Cool-down laufen als eigene Schritte mit Anleitung im Training-Wizard.
 - RPE ist ein Dropdown (1–10), Standardwert 7.
 - "Reps" wird als kurze Bezeichnung beibehalten.
 
 
-## Neu in v0.4
+## Neu in v0.5
 - Zone 2: Gerät-Dropdown (Rudern, Velo, Stepper)
 - Zone 2: freies Zahlenfeld für Stufe / Resistance
 - Zone 2: angezeigte kcal beim Abschluss
 - Training-Sheet erhält die Felder `device`, `level`, `calories`
 - `setup()` ergänzt fehlende Spalten in bestehenden Sheets, ohne vorhandene Daten zu löschen
-- sichtbare Versionsnummer im Frontend und Backend auf v0.4
+- sichtbare Versionsnummer im Frontend und Backend auf v0.5
+
+
+## Neu in v0.5
+
+- Krafttraining wird als **ein gemeinsamer Request** gespeichert. Dadurch landen bei Kraft A/B zuverlässig alle 8 Übungen im Tab `Exercises`.
+- `Exercises` erhält die zusätzliche Spalte `duration_sec` für zeitbasierte Übungen wie Plank.
+- Plank wird mit Sätzen + Haltedauer gespeichert, nicht mit künstlichem Gewicht.
+- Bei jeder Kraftübung erscheinen zwei YouTube-Links: **Tutorial** und **Dos & Don'ts**. Die Links öffnen gezielte YouTube-Suchen zur jeweiligen Übung.
+- Nach dem Speichern prüft das Frontend, ob die erwartete Zahl von Übungszeilen zurückgelesen wurde.
+- Frontend und `Code.gs` tragen beide Version **0.5**.
+
+### Update von v0.4
+
+1. Auf GitHub `index.html`, `app.js` und `styles.css` ersetzen.
+2. In Apps Script `Code.gs` ersetzen.
+3. `setup()` einmal ausführen. Dadurch wird `duration_sec` ergänzt; bestehende Daten bleiben erhalten.
+4. Unter **Bereitstellungen verwalten → Bearbeiten → Neue Version → Bereitstellen** das Backend neu veröffentlichen.

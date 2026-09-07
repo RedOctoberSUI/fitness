@@ -11,7 +11,7 @@
   <div class="shell">
     <header>
       <div>
-        <div class="eyebrow">HOCKEY FIT <span class="version">v0.4</span></div>
+        <div class="eyebrow">HOCKEY FIT <span class="version">v0.5</span></div>
         <h1 id="pageTitle">Dashboard</h1>
       </div>
       <button class="icon-btn" id="refreshBtn" title="Aktualisieren">↻</button>
@@ -124,6 +124,7 @@
             <button class="text-btn" id="cancelWizardBtn">Abbrechen</button>
           </div>
           <div id="exerciseInstruction" class="exercise-help"></div>
+          <div id="exerciseLinks" class="exercise-links hidden"></div>
           <div id="warmupFields" class="hidden">
             <div class="three-col">
               <label>Zeit (min)<input id="warmupMinutes" type="number" min="1" max="60" inputmode="numeric" value="10" /></label>
@@ -134,10 +135,13 @@
           <div id="exerciseFields">
             <div class="two-col">
               <label>Sätze<input id="exerciseSets" type="number" min="1" max="10" inputmode="numeric" /></label>
-              <label>Reps pro Satz<input id="exerciseReps" type="number" min="1" max="50" inputmode="numeric" /></label>
+              <label id="exerciseRepsLabel">Reps pro Satz<input id="exerciseReps" type="number" min="1" max="50" inputmode="numeric" /></label>
+            </div>
+            <div id="exerciseDurationField" class="hidden">
+              <label>Haltedauer pro Satz (Sek.)<input id="exerciseDurationSec" type="number" min="5" max="600" inputmode="numeric" placeholder="z. B. 45" /></label>
             </div>
             <div id="lastExerciseWeight" class="exercise-help hidden"></div>
-            <div class="two-col">
+            <div id="exerciseWeightFields" class="two-col">
               <label>Min. Gewicht (kg)<input id="exerciseWeightMin" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 20" /></label>
               <label>Max. Gewicht (kg)<input id="exerciseWeightMax" type="number" step="0.5" min="0" max="500" inputmode="decimal" placeholder="z. B. 25" /></label>
             </div>

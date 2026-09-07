@@ -1,6 +1,6 @@
 /**
  * Hockey Fit Tracker – Google Sheets Backend
- * Version: 0.4
+ * Version: 0.5
  */
 
 function setup() {
@@ -11,7 +11,7 @@ function setup() {
     Weight: ['timestamp','date','weight_kg'],
     Measurements: ['timestamp','date','waist_cm'],
     Training: ['timestamp','date','type','duration_min','avg_hr','max_hr','rpe','device','level','calories','warmup_minutes','warmup_level','warmup_calories','notes'],
-    Exercises: ['timestamp','date','training_type','exercise_order','exercise','sets','reps','weight_min_kg','weight_max_kg','notes']
+    Exercises: ['timestamp','date','training_type','exercise_order','exercise','sets','reps','duration_sec','weight_min_kg','weight_max_kg','notes']
   };
 
   Object.keys(schemas).forEach(name => {
@@ -70,6 +70,7 @@ function doPost(e) {
     else if (action === 'addMeasurement') addMeasurement_(payload);
     else if (action === 'addTraining') addTraining_(payload);
     else if (action === 'addExercise') addExercise_(payload);
+    else if (action === 'addWorkout') addWorkout_(payload);
     else throw new Error('Unbekannte Aktion');
     return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
@@ -120,10 +121,42 @@ function addTraining_(p) {
 
 function addExercise_(p) {
   if (!p.date || !p.training_type || !p.exercise) throw new Error('Ungültige Übungsdaten');
-  ss_().getSheetByName('Exercises').appendRow([
-    new Date(),safeDate_(p.date),String(p.training_type),numOrBlank_(p.exercise_order),String(p.exercise),
-    numOrBlank_(p.sets),numOrBlank_(p.reps),numOrBlank_(p.weight_min_kg),numOrBlank_(p.weight_max_kg),String(p.notes || '')
-  ]);
+  appendByHeader_('Exercises', {
+    timestamp: new Date(), date: safeDate_(p.date), training_type: String(p.training_type),
+    exercise_order: numOrBlank_(p.exercise_order), exercise: String(p.exercise), sets: numOrBlank_(p.sets),
+    reps: numOrBlank_(p.reps), duration_sec: numOrBlank_(p.duration_sec), weight_min_kg: numOrBlank_(p.weight_min_kg),
+    weight_max_kg: numOrBlank_(p.weight_max_kg), notes: String(p.notes || '')
+  });
+}
+
+function addWorkout_(p) {
+  if (!p || !p.training) throw new Error('Training fehlt');
+  const exercises = Array.isArray(p.exercises) ? p.exercises : [];
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    addTraining_(p.training);
+    if (exercises.length) addExercisesBatch_(exercises);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function addExercisesBatch_(rows) {
+  const sheet = ss_().getSheetByName('Exercises');
+  if (!sheet) throw new Error('Tabelle fehlt: Exercises');
+  const headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0].map(String);
+  const values = rows.map(p => {
+    if (!p.date || !p.training_type || !p.exercise) throw new Error('Ungültige Übungsdaten');
+    const obj = {
+      timestamp: new Date(), date: safeDate_(p.date), training_type: String(p.training_type),
+      exercise_order: numOrBlank_(p.exercise_order), exercise: String(p.exercise), sets: numOrBlank_(p.sets),
+      reps: numOrBlank_(p.reps), duration_sec: numOrBlank_(p.duration_sec), weight_min_kg: numOrBlank_(p.weight_min_kg),
+      weight_max_kg: numOrBlank_(p.weight_max_kg), notes: String(p.notes || '')
+    };
+    return headers.map(h => Object.prototype.hasOwnProperty.call(obj,h) ? obj[h] : '');
+  });
+  if (values.length) sheet.getRange(sheet.getLastRow()+1,1,values.length,headers.length).setValues(values);
 }
 
 
