@@ -1,6 +1,6 @@
 /**
  * Hockey Fit Tracker – Google Sheets Backend
- * Version: 0.3
+ * Version: 0.4
  */
 
 function setup() {
@@ -10,7 +10,7 @@ function setup() {
   const schemas = {
     Weight: ['timestamp','date','weight_kg'],
     Measurements: ['timestamp','date','waist_cm'],
-    Training: ['timestamp','date','type','duration_min','avg_hr','max_hr','rpe','device','level','calories','notes'],
+    Training: ['timestamp','date','type','duration_min','avg_hr','max_hr','rpe','device','level','calories','warmup_minutes','warmup_level','warmup_calories','notes'],
     Exercises: ['timestamp','date','training_type','exercise_order','exercise','sets','reps','weight_min_kg','weight_max_kg','notes']
   };
 
@@ -111,6 +111,9 @@ function addTraining_(p) {
     device: String(p.device || ''),
     level: numOrBlank_(p.level),
     calories: numOrBlank_(p.calories),
+    warmup_minutes: numOrBlank_(p.warmup_minutes),
+    warmup_level: numOrBlank_(p.warmup_level),
+    warmup_calories: numOrBlank_(p.warmup_calories),
     notes: String(p.notes || '')
   });
 }

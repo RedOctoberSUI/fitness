@@ -142,7 +142,7 @@ function startTrainingWizard(){
   state.workout={ date, type, exerciseIndex:0, exercises:[] };
   hideTrainingCards();
   if(isStrength(type)){
-    state.workout.exercises=workoutPlans[type].map(e=>({ ...e, weight_min_kg:'', weight_max_kg:'', notes:'' }));
+    state.workout.exercises=workoutPlans[type].map(e=>({ ...e, weight_min_kg:'', weight_max_kg:'', notes:'', warmup_minutes:e.kind==='warmup'?(e.minutes||10):'', warmup_level:'', warmup_calories:'' }));
     $('exerciseWizardCard').classList.remove('hidden');
     renderExerciseStep();
   } else if(type==='Zone 2') {
@@ -181,6 +181,12 @@ function zone2Back(){
 function saveCurrentExerciseFields(){
   if(!state.workout || !isStrength(state.workout.type)) return;
   const e=state.workout.exercises[state.workout.exerciseIndex];
+  if(e.kind==='warmup'){
+    e.warmup_minutes=Number($('warmupMinutes').value)||10;
+    e.warmup_level=$('warmupLevel').value;
+    e.warmup_calories=$('warmupCalories').value;
+    return;
+  }
   if(e.kind) return;
   e.sets=Number($('exerciseSets').value)||e.sets;
   e.reps=Number($('exerciseReps').value)||e.reps;
@@ -189,19 +195,48 @@ function saveCurrentExerciseFields(){
   e.notes=$('exerciseNotes').value.trim();
 }
 
+function lastExerciseEntry(name){
+  const rows=(state.data.exercises||[]).filter(x=>String(x.exercise)===String(name));
+  if(!rows.length) return null;
+  return [...rows].sort((a,b)=>{
+    const da=String(a.date||'')+' '+String(a.timestamp||'');
+    const db=String(b.date||'')+' '+String(b.timestamp||'');
+    return da.localeCompare(db);
+  }).pop();
+}
+
 function renderExerciseStep(){
   const w=state.workout; const e=w.exercises[w.exerciseIndex]; const total=w.exercises.length;
   const strengthNo=w.exercises.slice(0,w.exerciseIndex+1).filter(x=>!x.kind).length;
   $('exerciseStepLabel').textContent=e.kind==='warmup'?'WARM-UP · 10 MIN':e.kind==='cooldown'?'COOL-DOWN · 5 MIN':`ÜBUNG ${strengthNo} / 8`;
   $('exerciseName').textContent=e.name;
   $('exerciseInstruction').textContent=e.help;
+  $('warmupFields').classList.toggle('hidden',e.kind!=='warmup');
   $('exerciseFields').classList.toggle('hidden',!!e.kind);
+  if(e.kind==='warmup'){
+    $('warmupMinutes').value=e.warmup_minutes||10;
+    $('warmupLevel').value=e.warmup_level||'';
+    $('warmupCalories').value=e.warmup_calories||'';
+  }
   if(!e.kind){
     $('exerciseSets').value=e.sets;
     $('exerciseReps').value=e.reps;
     $('exerciseWeightMin').value=e.weight_min_kg;
     $('exerciseWeightMax').value=e.weight_max_kg;
     $('exerciseNotes').value=e.notes||'';
+    const prev=lastExerciseEntry(e.name);
+    const box=$('lastExerciseWeight');
+    if(prev){
+      const min=(prev.weight_min_kg!==''&&prev.weight_min_kg!=null)?prev.weight_min_kg:'—';
+      const max=(prev.weight_max_kg!==''&&prev.weight_max_kg!=null)?prev.weight_max_kg:'—';
+      box.innerHTML=`<strong>Letztes Training:</strong> ${esc(min)}–${esc(max)} kg <span class="muted">(${esc(prev.date||'')})</span>`;
+      box.classList.remove('hidden');
+    } else {
+      box.textContent='Noch kein früheres Gewicht für diese Übung.';
+      box.classList.remove('hidden');
+    }
+  } else {
+    $('lastExerciseWeight').classList.add('hidden');
   }
   $('exerciseBackBtn').disabled=w.exerciseIndex===0;
   $('exerciseNextBtn').textContent=w.exerciseIndex===total-1?'Zum Abschluss →':'Nächste Übung →';
@@ -244,7 +279,8 @@ async function saveWorkout(){
   if(!w) return;
   const dur=Number($('durationMin').value);
   if(!dur) return setStatus('trainingStatus','Dauer fehlt','err');
-  const trainingPayload={date:w.date,type:w.type,duration_min:dur,avg_hr:$('avgHr').value||'',max_hr:$('maxHr').value||'',rpe:$('rpe').value||'',device:w.type==='Zone 2'?(w.device||''):'',level:w.type==='Zone 2'?(w.level||''):'',calories:w.type==='Zone 2'?($('calories').value||''):'',notes:$('trainingNotes').value||''};
+  const warm=isStrength(w.type)?w.exercises.find(e=>e.kind==='warmup'):null;
+  const trainingPayload={date:w.date,type:w.type,duration_min:dur,avg_hr:$('avgHr').value||'',max_hr:$('maxHr').value||'',rpe:$('rpe').value||'',device:w.type==='Zone 2'?(w.device||''):'',level:w.type==='Zone 2'?(w.level||''):'',calories:w.type==='Zone 2'?($('calories').value||''):'',warmup_minutes:warm?(warm.warmup_minutes||10):'',warmup_level:warm?(warm.warmup_level||''):'',warmup_calories:warm?(warm.warmup_calories||''):'',notes:$('trainingNotes').value||''};
   try{
     setStatus('trainingStatus','Speichere Training …');
     post('addTraining',trainingPayload);
